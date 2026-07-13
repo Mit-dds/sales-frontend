@@ -343,6 +343,7 @@ export default function ProjectForm({
       type: type || "Apartments",
       status: status || "Off-plan",
       completionDate: completionDate || "",
+      day7Payment: 30000,
       feeLabel: feeLabel || "",
       feePct: feePct || 0,
       feeFixed: feeFixed || 0,
