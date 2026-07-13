@@ -1,0 +1,27 @@
+{
+  "project": "Reportage Sales Platform",
+  "version": "1.0.0",
+  "created": "2026-06-26",
+  "phases": {
+    "0": { "status": "planned", "name": "Discovery & Mapping" },
+    "1": { "status": "planned", "name": "Project Foundation" },
+    "2": { "status": "planned", "name": "Design System" },
+    "3": { "status": "planned", "name": "Routing & Layouts" },
+    "4": { "status": "planned", "name": "Authentication Module" },
+    "5": { "status": "planned", "name": "Core Business Logic Extraction" },
+    "6": { "status": "planned", "name": "Dashboard Module" },
+    "7": { "status": "planned", "name": "Project Management Module" },
+    "8": { "status": "planned", "name": "Unit Types Module" },
+    "9": { "status": "planned", "name": "Payment Plans Module" },
+    "10": { "status": "planned", "name": "Availability Management" },
+    "11": { "status": "planned", "name": "Offer Generation Wizard" },
+    "12": { "status": "planned", "name": "Offer Document System" },
+    "13": { "status": "planned", "name": "Comparison Engine" },
+    "14": { "status": "planned", "name": "Offer History" },
+    "15": { "status": "planned", "name": "User Management" },
+    "16": { "status": "planned", "name": "Profile Module" },
+    "17": { "status": "planned", "name": "Settings Module" },
+    "18": { "status": "planned", "name": "Optimization & Refactor" },
+    "19": { "status": "planned", "name": "Final QA" }
+  }
+}

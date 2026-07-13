@@ -1,0 +1,9 @@
+import { Outlet } from 'react-router-dom'
+
+export function AuthLayout() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-[#EEF2FA] to-[#DDEEFF] font-sans">
+      <Outlet />
+    </div>
+  )
+}

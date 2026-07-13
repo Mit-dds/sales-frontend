@@ -1,0 +1,14 @@
+{
+  "project_name": "Reportage Sales Platform",
+  "framework": "react",
+  "language": "typescript",
+  "styling": "tailwindcss",
+  "state_management": "zustand",
+  "data_fetching": "@tanstack/react-query",
+  "forms": "react-hook-form",
+  "validation": "zod",
+  "routing": "react-router-dom",
+  "backend": "supabase",
+  "testing": "vitest",
+  "deployment": "vercel"
+}

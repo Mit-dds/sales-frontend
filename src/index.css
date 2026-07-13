@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@theme {
+  --color-gold: #B8860B;
+  --color-gold-dim: rgba(184, 134, 11, 0.1);
+  --color-navy: #1A2340;
+  --color-navy-light: #4A5880;
+  --color-navy-dim: #8892AA;
+  --color-surface: #F0F4FA;
+  --color-surface-white: #FFFFFF;
+  --color-border: #D0DCF0;
+  --color-green: #1A8A5A;
+  --color-green-dim: rgba(26, 138, 90, 0.08);
+  --color-blue: #1E6FD9;
+  --color-blue-dim: rgba(30, 111, 217, 0.08);
+  --color-orange: #C8640A;
+  --color-orange-dim: rgba(200, 100, 10, 0.1);
+  --color-red: #C0392B;
+  --color-red-dim: rgba(192, 57, 43, 0.08);
+
+  --font-sans: 'Outfit', sans-serif;
+  --font-serif: 'Cormorant Garamond', serif;
+  --font-mono: 'DM Mono', monospace;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    background: #F0F4FA !important;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: #1E6FD9 !important;
+    outline: none !important;
+  }
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #E8EEF8;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #B0C0DC;
+    border-radius: 3px;
+  }
+  /* Table body row hover background */
+  tbody tr:hover td {
+    background: rgba(30, 111, 217, 0.03) !important;
+  }
+}

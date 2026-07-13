@@ -1,0 +1,60 @@
+import type { PaymentPlan } from '@/types'
+
+export const TEMPLATE_PLANS: PaymentPlan[] = [
+  {
+    id: 'tp1', planType: 'normal',
+    label: '10% DP + 1% Monthly + Balance on Completion',
+    dp: 10, installmentPct: 1, onHandover: 0,
+    durationType: 'till_handover', durationMonths: null,
+    discount: 5, eventName: '', eventDiscount: null,
+    eventInstallmentPct: null, eventDurationType: 'till_handover', eventDurationMonths: null,
+  },
+  {
+    id: 'tp2', planType: 'normal',
+    label: '15% DP + 1% Monthly + Balance on Completion',
+    dp: 15, installmentPct: 1, onHandover: 0,
+    durationType: 'till_handover', durationMonths: null,
+    discount: 7.5, eventName: '', eventDiscount: null,
+    eventInstallmentPct: null, eventDurationType: 'till_handover', eventDurationMonths: null,
+  },
+  {
+    id: 'tp3', planType: 'normal',
+    label: '20% DP + 1% Monthly + Balance on Completion',
+    dp: 20, installmentPct: 1, onHandover: 0,
+    durationType: 'till_handover', durationMonths: null,
+    discount: 10, eventName: '', eventDiscount: null,
+    eventInstallmentPct: null, eventDurationType: 'till_handover', eventDurationMonths: null,
+  },
+  {
+    id: 'tp4', planType: 'normal',
+    label: '30% DP + 1% Monthly + Balance on Completion',
+    dp: 30, installmentPct: 1, onHandover: 0,
+    durationType: 'till_handover', durationMonths: null,
+    discount: 15, eventName: '', eventDiscount: null,
+    eventInstallmentPct: null, eventDurationType: 'till_handover', eventDurationMonths: null,
+  },
+  {
+    id: 'tp5', planType: 'normal',
+    label: '30% DP + 70% On Completion',
+    dp: 30, installmentPct: 0, onHandover: 70,
+    durationType: 'till_handover', durationMonths: null,
+    discount: 5, eventName: '', eventDiscount: null,
+    eventInstallmentPct: null, eventDurationType: 'till_handover', eventDurationMonths: null,
+  },
+  {
+    id: 'tp6', planType: 'normal',
+    label: '20% DP + 80% On Completion',
+    dp: 20, installmentPct: 0, onHandover: 80,
+    durationType: 'till_handover', durationMonths: null,
+    discount: 0, eventName: '', eventDiscount: null,
+    eventInstallmentPct: null, eventDurationType: 'till_handover', eventDurationMonths: null,
+  },
+  {
+    id: 'tp7', planType: 'normal',
+    label: '100% DP - Investor Deal',
+    dp: 100, installmentPct: 0, onHandover: 0,
+    durationType: 'till_handover', durationMonths: null,
+    discount: 40, eventName: '', eventDiscount: null,
+    eventInstallmentPct: null, eventDurationType: 'till_handover', eventDurationMonths: null,
+  },
+]
