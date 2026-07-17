@@ -97,10 +97,18 @@ export default function Login() {
   }
 
   async function doRegister() {
+    const errors: Record<string, string> = {};
     if (!name || !email || !pass) {
       setErr("Please fill all fields");
       return;
     }
+    if (/[0-9]/.test(name)) errors.name = "Name cannot contain numbers";
+    if (regPhone) {
+      const d = regPhone.replace(/\D/g, '');
+      if (d.length < 7) errors.phone = "Enter a valid UAE number (e.g., +971 50 123 4567)";
+    }
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) return;
 
     setLoading(true);
     setErr("");
@@ -136,6 +144,13 @@ export default function Login() {
       const errData = ex.response?.data || ex;
       const message = errData.message || "Registration failed";
       setErr(message);
+      if (errData.errors && Array.isArray(errData.errors)) {
+        const field: Record<string, string> = {};
+        errData.errors.forEach((e: any) => {
+          if (e.path) field[e.path] = e.message;
+        });
+        setFieldErrors(field);
+      }
       toast.error(message);
     } finally {
       setLoading(false);
@@ -146,7 +161,7 @@ export default function Login() {
     "w-full bg-[#F8FAFF] border border-border rounded-md text-navy px-3.5 py-2.5 text-[13px] outline-none focus:border-blue transition-colors disabled:opacity-60";
 
   return (
-    <div className="w-[520px] my-5 bg-white border border-border rounded-[10px] shadow-[0_2px_8px_rgba(30,60,120,0.06)] p-[48px_40px]">
+    <div className="w-full max-w-[520px] mx-4 my-5 bg-white border border-border rounded-[10px] shadow-[0_2px_8px_rgba(30,60,120,0.06)] p-6 md:p-10 lg:p-[48px_40px]">
       <div className="text-center mb-8">
         <div className="w-[60px] h-[60px] rounded-xl bg-gold-dim border border-border flex items-center justify-center text-[28px] mx-auto mb-4">
           <span className="text-gold font-bold">R</span>
@@ -189,18 +204,26 @@ export default function Login() {
       {mode === "register" && (
         <Field label="Full Name">
           <input
-            className={inpStyle}
+            className={`${inpStyle} ${fieldErrors.name ? "border-red" : ""}`}
             value={name}
             disabled={loading}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => {
+              setName(e.target.value);
+              setFieldErrors((p) => ({ ...p, name: "" }));
+            }}
             placeholder="Your full name"
           />
+          {fieldErrors.name && (
+            <div className="text-[11px] text-red mt-1">{fieldErrors.name}</div>
+          )}
         </Field>
       )}
 
       <Field label={mode === "signin" ? "Email or Phone" : "Email"}>
         <input
-          className={`${inpStyle} ${fieldErrors.emailOrPhone ? "border-red" : ""}`}
+          className={`${inpStyle} ${
+            fieldErrors.emailOrPhone || fieldErrors.email ? "border-red" : ""
+          }`}
           type={mode === "signin" ? "text" : "email"}
           value={email}
           disabled={loading}
@@ -213,9 +236,9 @@ export default function Login() {
             mode === "signin" ? "Email or phone number" : "you@reportage.ae"
           }
         />
-        {fieldErrors.emailOrPhone && (
+        {(fieldErrors.emailOrPhone || fieldErrors.email) && (
           <div className="text-[11px] text-red mt-1">
-            {fieldErrors.emailOrPhone}
+            {fieldErrors.emailOrPhone || fieldErrors.email}
           </div>
         )}
       </Field>
@@ -257,22 +280,38 @@ export default function Login() {
         <div>
           <Field label="Phone / WhatsApp">
             <input
-              className={inpStyle}
+              className={`${inpStyle} ${fieldErrors.phone ? "border-red" : ""}`}
               value={regPhone}
               disabled={loading}
-              onChange={(e) => setRegPhone(e.target.value)}
-              placeholder="971501234567"
+              onChange={(e) => {
+                let val = e.target.value;
+                if (val.length === 1 && val !== '0' && val !== '+' && val !== '9') {
+                  val = '971' + val;
+                }
+                setRegPhone(val);
+                setFieldErrors((p) => ({ ...p, phone: "" }));
+              }}
+              placeholder="+971 50 123 4567"
             />
+            {fieldErrors.phone && (
+              <div className="text-[11px] text-red mt-1">{fieldErrors.phone}</div>
+            )}
           </Field>
           <Field label="Display Email (shown on offers)">
             <input
-              className={inpStyle}
+              className={`${inpStyle} ${fieldErrors.profileEmail ? "border-red" : ""}`}
               type="email"
               value={regProfileEmail}
               disabled={loading}
-              onChange={(e) => setRegProfileEmail(e.target.value)}
+              onChange={(e) => {
+                setRegProfileEmail(e.target.value);
+                setFieldErrors((p) => ({ ...p, profileEmail: "" }));
+              }}
               placeholder="Same as login or different"
             />
+            {fieldErrors.profileEmail && (
+              <div className="text-[11px] text-red mt-1">{fieldErrors.profileEmail}</div>
+            )}
             <div className="text-[10px] text-navy-dim mt-1">
               This email appears on your sales offers
             </div>

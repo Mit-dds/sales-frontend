@@ -571,9 +571,9 @@ export default function ProjectForm({
         />
       )}
 
-      <div className="flex items-center mb-7 bg-white rounded-[10px] px-5 py-4 border border-border">
+      <div className="flex items-center mb-7 bg-white rounded-[10px] px-3 sm:px-5 py-4 border border-border overflow-x-auto gap-2 scrollbar-none">
         {STEPS.map((s, i) => (
-          <div key={s.key} className="flex items-center flex-1">
+          <div key={s.key} className="flex items-center flex-1 min-w-0">
             <div className="flex items-center gap-2 shrink-0">
               <div
                 className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
@@ -586,7 +586,7 @@ export default function ProjectForm({
                 {stepIdx > i ? "✓" : s.num}
               </div>
               <span
-                className="text-xs"
+                className={`text-xs ${tab === s.key ? "block" : "hidden sm:block"}`}
                 style={{
                   fontWeight: tab === s.key ? 700 : 400,
                   color: tab === s.key ? pc : "#4A5880",
@@ -597,7 +597,7 @@ export default function ProjectForm({
             </div>
             {i < STEPS.length - 1 && (
               <div
-                className="flex-1 h-[2px] mx-3"
+                className="flex-1 h-[2px] mx-3 min-w-[15px]"
                 style={{ background: stepIdx > i ? "#1A8A5A" : "#D0DCF0" }}
               />
             )}
@@ -607,8 +607,8 @@ export default function ProjectForm({
 
       {/* Basics */}
       {tab === "basics" && (
-        <Card padding="p-6">
-          <div className="flex gap-4 mb-4">
+        <Card padding="p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row gap-4 mb-4">
             <F lbl="Project Name" flex>
               <input
                 className="w-full h-[38px] px-3 rounded-[6px] border border-border text-[13px] text-navy bg-white outline-none focus:border-blue"
@@ -634,7 +634,7 @@ export default function ProjectForm({
               </select>
             </F>
           </div>
-          <div className="flex gap-4 mb-4">
+          <div className="flex flex-col sm:flex-row gap-4 mb-4">
             <F lbl="Property Type" flex>
               <select
                 className="w-full h-[38px] px-3 rounded-[6px] border border-border text-[13px] text-navy bg-white outline-none focus:border-blue"
@@ -681,7 +681,7 @@ export default function ProjectForm({
             <div className="text-[10px] font-mono text-navy-light tracking-[1.5px] uppercase mb-3">
               Registration & Fees
             </div>
-            <div className="flex gap-3 flex-wrap">
+            <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
               <F lbl="Fee Label" flex>
                 <input
                   className="w-full h-[38px] px-3 rounded-[6px] border border-border text-[13px] text-navy bg-white outline-none focus:border-blue"
@@ -737,9 +737,9 @@ export default function ProjectForm({
             <div className="text-[10px] font-mono text-navy-light tracking-[1.5px] uppercase mb-3">
               Brand Colors
             </div>
-            <div className="flex gap-4 items-center flex-wrap">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-stretch">
               <div>
-                <div className="text-[10px] font-mono text-navy-light tracking-[1.6px] uppercase mb-1">
+                <div className="text-[10px] font-mono text-navy-light tracking-[1.6px] uppercase mb-1.5">
                   Primary
                 </div>
                 <div className="flex items-center gap-2">
@@ -747,17 +747,17 @@ export default function ProjectForm({
                     type="color"
                     value={p.primaryColor}
                     onChange={(e) => u("primaryColor", e.target.value)}
-                    className="w-11 h-9 rounded-[6px] border border-border cursor-pointer p-0.5 bg-transparent"
+                    className="w-12 h-[38px] rounded-[6px] border border-border cursor-pointer p-0.5 bg-transparent shrink-0"
                   />
                   <input
-                    className="w-[100px] h-[38px] px-3 rounded-[6px] border border-border text-[13px] text-navy bg-white outline-none focus:border-blue"
+                    className="w-full h-[38px] px-3 rounded-[6px] border border-border text-[13px] text-navy bg-white outline-none focus:border-blue"
                     value={p.primaryColor}
                     onChange={(e) => u("primaryColor", e.target.value)}
                   />
                 </div>
               </div>
               <div>
-                <div className="text-[10px] font-mono text-navy-light tracking-[1.6px] uppercase mb-1">
+                <div className="text-[10px] font-mono text-navy-light tracking-[1.6px] uppercase mb-1.5">
                   Secondary
                 </div>
                 <div className="flex items-center gap-2">
@@ -765,21 +765,21 @@ export default function ProjectForm({
                     type="color"
                     value={p.secondaryColor}
                     onChange={(e) => u("secondaryColor", e.target.value)}
-                    className="w-11 h-9 rounded-[6px] border border-border cursor-pointer p-0.5 bg-transparent"
+                    className="w-12 h-[38px] rounded-[6px] border border-border cursor-pointer p-0.5 bg-transparent shrink-0"
                   />
                   <input
-                    className="w-[100px] h-[38px] px-3 rounded-[6px] border border-border text-[13px] text-navy bg-white outline-none focus:border-blue"
+                    className="w-full h-[38px] px-3 rounded-[6px] border border-border text-[13px] text-navy bg-white outline-none focus:border-blue"
                     value={p.secondaryColor}
                     onChange={(e) => u("secondaryColor", e.target.value)}
                   />
                 </div>
               </div>
-              <div className="flex-1 min-w-[150px]">
-                <div className="text-[10px] font-mono text-navy-light tracking-[1.6px] uppercase mb-1">
+              <div className="flex flex-col justify-end">
+                <div className="text-[10px] font-mono text-navy-light tracking-[1.6px] uppercase mb-1.5">
                   Preview
                 </div>
                 <div
-                  className="h-9 rounded-[6px]"
+                  className="h-[38px] rounded-[6px] w-full"
                   style={{
                     background: `linear-gradient(135deg,${p.primaryColor},${p.secondaryColor || "#aaa"})`,
                   }}
@@ -859,7 +859,7 @@ export default function ProjectForm({
       {/* Unit Types */}
       {tab === "unittypes" && (
         <div>
-          <div className="flex items-center justify-between mb-4 p-[16px_20px] bg-white border border-border rounded-[10px]">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 p-4 sm:p-[16px_20px] bg-white border border-border rounded-[10px] gap-3">
             <div>
               <div className="text-[13px] text-navy font-semibold">
                 Unit Types
@@ -870,7 +870,7 @@ export default function ProjectForm({
             </div>
             <button
               onClick={() => setEditingUT("new")}
-              className="h-[38px] px-6 rounded-[6px] text-sm font-semibold cursor-pointer text-white bg-linear-to-r from-gold to-[#D4A84B]"
+              className="h-[38px] px-6 rounded-[6px] text-sm font-semibold cursor-pointer text-white bg-linear-to-r from-gold to-[#D4A84B] whitespace-nowrap"
             >
               + Add Unit Type
             </button>
@@ -1269,27 +1269,26 @@ export default function ProjectForm({
         </Card>
       )}
 
-      {/* Footer */}
-      <div className="flex justify-between items-center mt-4 p-[16px_20px] bg-white rounded-[10px] border border-border">
-        <div className="flex gap-2.5">
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center mt-4 p-4 sm:p-[16px_20px] bg-white rounded-[10px] border border-border gap-3">
+        <div className="flex gap-2.5 w-full sm:w-auto">
           <button
             onClick={onCancel}
-            className="h-[38px] px-4 rounded-[6px] text-sm cursor-pointer border border-border text-red bg-white hover:bg-[#FFF5F5] transition-colors"
+            className="h-[38px] px-4 rounded-[6px] text-sm cursor-pointer border border-border text-red bg-white hover:bg-[#FFF5F5] transition-colors w-full sm:w-auto text-center"
           >
             Cancel
           </button>
         </div>
-        <div className="flex gap-2.5">
+        <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center w-full sm:w-auto">
           <button
             onClick={handleSaveOnly}
-            className="h-[38px] px-4 rounded-[6px] text-sm font-semibold cursor-pointer text-white bg-green hover:bg-[#15724C] border-none"
+            className="h-[38px] px-4 rounded-[6px] text-sm font-semibold cursor-pointer text-white bg-green hover:bg-[#15724C] border-none w-full sm:w-auto text-center"
           >
             Save {STEPS[stepIdx].label}
           </button>
           {stepIdx < STEPS.length - 1 && (
             <button
               onClick={handleSaveAndNext}
-              className="h-[38px] px-4 rounded-[6px] text-sm font-semibold cursor-pointer text-white bg-green hover:bg-[#15724C] border-none"
+              className="h-[38px] px-4 rounded-[6px] text-sm font-semibold cursor-pointer text-white bg-green hover:bg-[#15724C] border-none w-full sm:w-auto text-center"
             >
               Save & Next: {STEPS[stepIdx + 1].label}
             </button>
@@ -1297,7 +1296,7 @@ export default function ProjectForm({
           {stepIdx === STEPS.length - 1 && (
             <button
               onClick={handleSaveAndFinish}
-              className="h-[38px] px-4 rounded-[6px] text-sm font-semibold cursor-pointer text-white bg-green hover:bg-[#15724C] border-none"
+              className="h-[38px] px-4 rounded-[6px] text-sm font-semibold cursor-pointer text-white bg-green hover:bg-[#15724C] border-none w-full sm:w-auto text-center"
             >
               Save & Finish
             </button>

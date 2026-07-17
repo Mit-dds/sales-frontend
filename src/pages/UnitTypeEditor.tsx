@@ -223,7 +223,11 @@ export default function UnitTypeEditor({
               formData.append(`subtypes[${index}][label]`, label);
               const fp = ut.floorPlans?.[label];
               if (fp?.file) {
-                formData.append(`subtypes[${index}][floorPlan]`, fp.file, fp.name);
+                formData.append(
+                  `subtypes[${index}][floorPlan]`,
+                  fp.file,
+                  fp.name,
+                );
               }
             });
 
@@ -284,8 +288,7 @@ export default function UnitTypeEditor({
           const ids = (backendUt.subtypes || []).map((st: any) => st.id);
           setSubtypeIdsByIndex(ids);
 
-
-           let finalPlans = backendUt.paymentPlans || [];
+          let finalPlans = backendUt.paymentPlans || [];
 
           if (tab === "plans" || tab === "files") {
             const plansPayload = (ut.paymentPlans || []).map((p) => ({
@@ -305,12 +308,14 @@ export default function UnitTypeEditor({
                   ? Number(p.eventDiscount)
                   : null,
               eventInstallmentPct:
-                p.eventInstallmentPct !== null && p.eventInstallmentPct !== undefined
+                p.eventInstallmentPct !== null &&
+                p.eventInstallmentPct !== undefined
                   ? Number(p.eventInstallmentPct)
                   : null,
               eventDurationType: p.eventDurationType || "till_handover",
               eventDurationMonths:
-                p.eventDurationMonths !== null && p.eventDurationMonths !== undefined
+                p.eventDurationMonths !== null &&
+                p.eventDurationMonths !== undefined
                   ? Number(p.eventDurationMonths)
                   : null,
             }));
@@ -318,9 +323,12 @@ export default function UnitTypeEditor({
             const plansResponse = await apiClient.post<{
               success: boolean;
               data: { plans: any[] };
-            }>(`projects/${projectId}/unit-types/${backendUt.id}/payment-plans`, {
-              plans: plansPayload,
-            });
+            }>(
+              `projects/${projectId}/unit-types/${backendUt.id}/payment-plans`,
+              {
+                plans: plansPayload,
+              },
+            );
 
             if (plansResponse.data.success) {
               finalPlans = plansResponse.data.data.plans;
@@ -372,20 +380,23 @@ export default function UnitTypeEditor({
 
         if (hasFiles) {
           const formData = new FormData();
-          (ut.subtypes || [])
-            .forEach((label, index) => {
-              if (label) {
-                const id = subtypeIdsByIndex[index];
-                if (id) {
-                  formData.append(`subtypes[${index}][id]`, id);
-                }
-                formData.append(`subtypes[${index}][label]`, label);
-                const fp = ut.floorPlans?.[label];
-                if (fp?.file) {
-                  formData.append(`subtypes[${index}][floorPlan]`, fp.file, fp.name);
-                }
+          (ut.subtypes || []).forEach((label, index) => {
+            if (label) {
+              const id = subtypeIdsByIndex[index];
+              if (id) {
+                formData.append(`subtypes[${index}][id]`, id);
               }
-            });
+              formData.append(`subtypes[${index}][label]`, label);
+              const fp = ut.floorPlans?.[label];
+              if (fp?.file) {
+                formData.append(
+                  `subtypes[${index}][floorPlan]`,
+                  fp.file,
+                  fp.name,
+                );
+              }
+            }
+          });
 
           subtypesResPromise = apiClient.put<{
             success: boolean;
@@ -452,9 +463,7 @@ export default function UnitTypeEditor({
                 name: st.floorPlanName || `${st.label} Floor Plan`,
                 dataUrl: getFileUrl(st.floorPlanPath) || "",
                 isImage:
-                  st.floorPlanIsImage !== null
-                    ? !!st.floorPlanIsImage
-                    : true,
+                  st.floorPlanIsImage !== null ? !!st.floorPlanIsImage : true,
               };
             }
           });
@@ -479,12 +488,14 @@ export default function UnitTypeEditor({
                   ? Number(p.eventDiscount)
                   : null,
               eventInstallmentPct:
-                p.eventInstallmentPct !== null && p.eventInstallmentPct !== undefined
+                p.eventInstallmentPct !== null &&
+                p.eventInstallmentPct !== undefined
                   ? Number(p.eventInstallmentPct)
                   : null,
               eventDurationType: p.eventDurationType || "till_handover",
               eventDurationMonths:
-                p.eventDurationMonths !== null && p.eventDurationMonths !== undefined
+                p.eventDurationMonths !== null &&
+                p.eventDurationMonths !== undefined
                   ? Number(p.eventDurationMonths)
                   : null,
             }));
@@ -589,11 +600,11 @@ export default function UnitTypeEditor({
         style={{ background: `linear-gradient(90deg,${pc},transparent)` }}
       />
 
-      <div className="flex gap-1 bg-surface border border-border rounded-[6px] p-1 mb-6">
+      <div className="flex gap-1 bg-surface border border-border rounded-[6px] p-1 mb-6 overflow-x-auto scrollbar-none whitespace-nowrap">
         {tabs.map((t) => (
           <div
             key={t.key}
-            className="flex-1 text-center py-2.5 px-1 rounded-[6px] text-xs"
+            className="flex-1 text-center py-2.5 px-1 rounded-[6px] text-xs whitespace-nowrap"
             style={{
               background: tab === t.key ? getRgbaColor(pc, 0.12) : "#fff",
               color: tab === t.key ? pc : "#4A5880",
@@ -603,7 +614,10 @@ export default function UnitTypeEditor({
               boxShadow: tab === t.key ? "0 2px 6px rgba(0,0,0,0.08)" : "none",
             }}
           >
-            {t.label}
+            {t.label.split(" ")[0]}{" "}
+            <span className={tab === t.key ? "inline" : "hidden sm:inline"}>
+              {t.label.split(" ").slice(1).join(" ")}
+            </span>
           </div>
         ))}
       </div>
@@ -636,10 +650,10 @@ export default function UnitTypeEditor({
               return (
                 <div
                   key={i}
-                  className="flex gap-2 mb-2.5 items-center p-[10px_14px] bg-surface rounded-[6px] border border-border"
+                  className="flex flex-col sm:flex-row gap-2 mb-2.5 items-stretch sm:items-center p-[10px_14px] bg-surface rounded-[6px] border border-border"
                 >
                   <input
-                    className="flex-1 h-[38px] px-3 rounded-[6px] border border-border text-[13px] text-navy bg-white outline-none focus:border-blue"
+                    className="flex-1 h-[44px] sm:h-[38px] px-3 rounded-[6px] border border-border text-[13px] text-navy bg-white outline-none focus:border-blue w-full"
                     value={st}
                     placeholder={`Sub Type ${String.fromCharCode(65 + i)}`}
                     onChange={(e) => {
@@ -664,22 +678,24 @@ export default function UnitTypeEditor({
                       }));
                     }}
                   />
-                  <div className="flex items-center gap-1.5 shrink-0">
+                  <div className="flex items-center justify-between gap-1.5 w-full sm:w-auto shrink-0">
                     {existingFP ? (
-                      <div className="flex items-center gap-1.5 p-[6px_10px] bg-green-dim rounded-[6px] border border-[rgba(26,138,90,0.2)]">
-                        <span className="text-[12px]">FP</span>
-                        <span className="text-[11px] text-green max-w-[100px] truncate">
-                          {existingFP.name}
-                        </span>
+                      <div className="flex items-center justify-between gap-1.5 p-[6px_10px] bg-green-dim rounded-[6px] border border-[rgba(26,138,90,0.2)] w-full sm:w-auto">
+                        <div className="flex items-center gap-1.5 truncate">
+                          <span className="text-[12px] font-bold">FP</span>
+                          <span className="text-[11px] text-green truncate max-w-[120px] sm:max-w-[100px]">
+                            {existingFP.name}
+                          </span>
+                        </div>
                         <button
                           onClick={() => handleDeleteFloorPlan(fpKey)}
-                          className="text-[9px] font-semibold cursor-pointer text-red hover:bg-red-dim px-1.5 py-0.5 rounded"
+                          className="text-[9px] font-semibold cursor-pointer text-red hover:bg-red-dim px-1.5 py-0.5 rounded shrink-0"
                         >
                           <X size={14} />
                         </button>
                       </div>
                     ) : (
-                      <label className="flex items-center gap-1.5 p-[6px_10px] bg-blue-dim rounded-[6px] border border-[rgba(30,111,217,0.2)] cursor-pointer text-[11px] text-blue whitespace-nowrap">
+                      <label className="flex items-center justify-center gap-1.5 p-[6px_10px] bg-blue-dim rounded-[6px] border border-[rgba(30,111,217,0.2)] cursor-pointer text-[11px] text-blue whitespace-nowrap w-full sm:w-auto">
                         Upload PDF/JPG/PNG
                         <input
                           type="file"
@@ -691,22 +707,92 @@ export default function UnitTypeEditor({
                         />
                       </label>
                     )}
+                    {(ut.subtypes || [""]).length > 1 && (
+                      <button
+                        onClick={async () => {
+                          const subTypeId = subtypeIdsByIndex[i];
+                          const isBackend =
+                            projectId &&
+                            (projectId.startsWith("cm") ||
+                              projectId.length > 5);
+                          const isBackendUt =
+                            ut.id &&
+                            (ut.id.startsWith("cm") || ut.id.length > 5);
+
+                          if (isBackend && isBackendUt && subTypeId) {
+                            try {
+                              const loadingToastId = toast.loading(
+                                "Deleting subtype on server...",
+                              );
+                              const response = await apiClient.delete<{
+                                success: boolean;
+                                message: string;
+                              }>(
+                                `projects/${projectId}/unit-types/${ut.id}/subtypes/${subTypeId}`,
+                              );
+                              toast.dismiss(loadingToastId);
+                              if (response.data.success) {
+                                toast.success("Subtype deleted successfully");
+                              }
+                            } catch (err: any) {
+                              const msg =
+                                err.response?.data?.message ||
+                                err.message ||
+                                "Failed to delete subtype on server";
+                              toast.error(msg);
+                              return;
+                            }
+                          }
+
+                          const label = (ut.subtypes?.[i] || "").trim();
+                          const s = [...(ut.subtypes || [])];
+                          s.splice(i, 1);
+
+                          const updatedFloorPlans = {
+                            ...(ut.floorPlans || {}),
+                          };
+                          if (label && updatedFloorPlans[label]) {
+                            delete updatedFloorPlans[label];
+                          }
+
+                          setUt((prev) => ({
+                            ...prev,
+                            subtypes: s,
+                            floorPlans: updatedFloorPlans,
+                          }));
+
+                          setSubtypeIdsByIndex((prev) => {
+                            const copy = [...prev];
+                            copy.splice(i, 1);
+                            return copy;
+                          });
+                        }}
+                        className="p-2 text-xs font-semibold cursor-pointer text-red hover:bg-red-dim rounded shrink-0 flex items-center justify-center sm:hidden"
+                      >
+                        <X size={14} />
+                      </button>
+                    )}
                   </div>
                   {(ut.subtypes || [""]).length > 1 && (
                     <button
                       onClick={async () => {
                         const subTypeId = subtypeIdsByIndex[i];
-                        const isBackend = projectId && (projectId.startsWith("cm") || projectId.length > 5);
-                        const isBackendUt = ut.id && (ut.id.startsWith("cm") || ut.id.length > 5);
+                        const isBackend =
+                          projectId &&
+                          (projectId.startsWith("cm") || projectId.length > 5);
+                        const isBackendUt =
+                          ut.id && (ut.id.startsWith("cm") || ut.id.length > 5);
 
                         if (isBackend && isBackendUt && subTypeId) {
                           try {
-                            const loadingToastId = toast.loading("Deleting subtype on server...");
+                            const loadingToastId = toast.loading(
+                              "Deleting subtype on server...",
+                            );
                             const response = await apiClient.delete<{
                               success: boolean;
                               message: string;
                             }>(
-                              `projects/${projectId}/unit-types/${ut.id}/subtypes/${subTypeId}`
+                              `projects/${projectId}/unit-types/${ut.id}/subtypes/${subTypeId}`,
                             );
                             toast.dismiss(loadingToastId);
                             if (response.data.success) {
@@ -743,7 +829,7 @@ export default function UnitTypeEditor({
                           return copy;
                         });
                       }}
-                      className="p-2 text-xs font-semibold cursor-pointer text-red hover:bg-red-dim rounded shrink-0 flex items-center justify-center"
+                      className="p-2 text-xs font-semibold cursor-pointer text-red hover:bg-red-dim rounded shrink-0 hidden sm:flex items-center justify-center"
                     >
                       <X size={14} />
                     </button>
@@ -800,7 +886,8 @@ export default function UnitTypeEditor({
               <button
                 onClick={async () => {
                   const isBackend =
-                    projectId && (projectId.startsWith("cm") || projectId.length > 5);
+                    projectId &&
+                    (projectId.startsWith("cm") || projectId.length > 5);
                   const isBackendUt =
                     ut.id && (ut.id.startsWith("cm") || ut.id.length > 5);
 
@@ -808,14 +895,16 @@ export default function UnitTypeEditor({
 
                   if (isBackend && isBackendUt) {
                     try {
-                      const loadingId = toast.loading("Loading templates from server...");
+                      const loadingId = toast.loading(
+                        "Loading templates from server...",
+                      );
                       const response = await apiClient.get<{
                         success: boolean;
                         data: {
                           templates: any[];
                         };
                       }>(
-                        `projects/${projectId}/unit-types/${ut.id}/payment-plans/templates`
+                        `projects/${projectId}/unit-types/${ut.id}/payment-plans/templates`,
                       );
                       toast.dismiss(loadingId);
                       if (response.data.success) {
@@ -824,7 +913,7 @@ export default function UnitTypeEditor({
                     } catch {
                       toast.dismiss();
                       toast.error(
-                        "Failed to load templates from server, falling back to local defaults"
+                        "Failed to load templates from server, falling back to local defaults",
                       );
                     }
                   }
@@ -868,7 +957,7 @@ export default function UnitTypeEditor({
               setUt((prev) => ({
                 ...prev,
                 paymentPlans: (prev.paymentPlans || []).map((x) =>
-                  x.id === id ? { ...x, ...data } : x
+                  x.id === id ? { ...x, ...data } : x,
                 ),
               }));
             }}
@@ -914,7 +1003,10 @@ export default function UnitTypeEditor({
                       PDF
                     </div>
                   )}
-                  <span className="text-[11px] text-navy-dim truncate" title={fp.name}>
+                  <span
+                    className="text-[11px] text-navy-dim truncate"
+                    title={fp.name}
+                  >
                     {fp.name}
                   </span>
                 </div>
@@ -929,25 +1021,24 @@ export default function UnitTypeEditor({
         </Card>
       )}
 
-      {/* Footer */}
-      <div className="flex justify-between items-center mt-4 p-[16px_20px] bg-white rounded-[10px] border border-border">
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center mt-4 p-4 sm:p-[16px_20px] bg-white rounded-[10px] border border-border gap-3">
         <button
           onClick={onCancel}
-          className="h-[38px] px-6 rounded-[6px] text-xs cursor-pointer border border-border text-navy bg-white hover:bg-surface"
+          className="h-[38px] px-6 rounded-[6px] text-xs cursor-pointer border border-border text-navy bg-white hover:bg-surface w-full sm:w-auto text-center"
         >
           Cancel
         </button>
-        <div className="flex gap-2.5">
+        <div className="flex flex-col sm:flex-row gap-2.5 w-full sm:w-auto">
           <button
             onClick={() => handleSave(false)}
-            className="h-[38px] px-4 rounded-[6px] text-sm font-semibold cursor-pointer text-white bg-linear-to-r from-green to-[#2ECC8A]"
+            className="h-[38px] px-4 rounded-[6px] text-sm font-semibold cursor-pointer text-white bg-linear-to-r from-green to-[#2ECC8A] w-full sm:w-auto text-center"
           >
             Save Unit Type
           </button>
           {tab === "details" && (
             <button
               onClick={() => handleSave(false, "plans")}
-              className="h-[38px] px-4 rounded-[6px] text-sm font-semibold cursor-pointer text-white bg-[#001367]"
+              className="h-[38px] px-4 rounded-[6px] text-sm font-semibold cursor-pointer text-white bg-[#001367] w-full sm:w-auto text-center"
             >
               Save & Next: Payment Plans
             </button>
@@ -955,15 +1046,15 @@ export default function UnitTypeEditor({
           {tab === "plans" && (
             <button
               onClick={() => handleSave(false, "files")}
-              className="h-[38px] px-4 rounded-[6px] text-sm font-semibold cursor-pointer text-white bg-[#001367]"
+              className="h-[38px] px-4 rounded-[6px] text-sm font-semibold cursor-pointer text-white bg-[#001367] w-full sm:w-auto text-center"
             >
-              Save & Next:Floor Plans
+              Save & Next: Floor Plans
             </button>
           )}
           {tab === "files" && (
             <button
               onClick={() => handleSave(true)}
-              className="h-[38px] px-4 rounded-[6px] text-sm font-semibold cursor-pointer text-white bg-[#001367]"
+              className="h-[38px] px-4 rounded-[6px] text-sm font-semibold cursor-pointer text-white bg-[#001367] w-full sm:w-auto text-center"
             >
               Save & Done
             </button>

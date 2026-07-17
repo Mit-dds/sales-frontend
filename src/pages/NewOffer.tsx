@@ -126,7 +126,9 @@ export default function NewOffer() {
   const [liveRate, setLiveRate] = useState("");
 
   useEffect(() => {
-    if (extraCurrency && extraCurrency !== "USD") {
+    if (extraCurrency === "USD") {
+      setLiveRate(String(AED_TO_USD));
+    } else if (extraCurrency) {
       const ratesMap: Record<string, number> = {
         EUR: settings.eurRate || 0.25,
         GBP: settings.gbpRate || 0.214,
@@ -930,7 +932,9 @@ export default function NewOffer() {
         durationType: p.durationType,
         durationMonths: p.durationMonths,
         discount: (p.discount || 0) + (extraDiscount || 0),
-        eventDiscount: p.eventDiscount ? p.eventDiscount + (extraDiscount || 0) : undefined,
+        eventDiscount: p.eventDiscount
+          ? p.eventDiscount + (extraDiscount || 0)
+          : undefined,
       })),
       unit: {
         price: unit.price,
@@ -962,10 +966,15 @@ export default function NewOffer() {
     const today = new Date();
 
     const freshResult = buildRecoverySchedule({
-      project: { completionDate: proj.completionDate, bookingToken: proj.bookingToken || DEFAULT_BOOKING_TOKEN },
+      project: {
+        completionDate: proj.completionDate,
+        bookingToken: proj.bookingToken || DEFAULT_BOOKING_TOKEN,
+      },
       unit: { price: unit.price },
       basePlan: bp,
-      monthlyPct: recoveryMonthlyPct ? +recoveryMonthlyPct : recoverySchedule?.reducedPct || 0,
+      monthlyPct: recoveryMonthlyPct
+        ? +recoveryMonthlyPct
+        : recoverySchedule?.reducedPct || 0,
       freq: recoveryFreq || recoverySchedule?.freq || 6,
       priceOverride: priceOverride ? +priceOverride : undefined,
       extraDiscount,
@@ -973,8 +982,10 @@ export default function NewOffer() {
       day7Input,
     });
 
-    const rows = freshResult ? freshResult.rows : (recoverySchedule?.rows || []);
-    const netPrice = freshResult ? freshResult.netPrice : (recoverySchedule?.netPrice || 0);
+    const rows = freshResult ? freshResult.rows : recoverySchedule?.rows || [];
+    const netPrice = freshResult
+      ? freshResult.netPrice
+      : recoverySchedule?.netPrice || 0;
 
     const effPriceRec2 =
       priceOverride && +priceOverride > 0 ? +priceOverride : unit.price;
@@ -1098,7 +1109,7 @@ export default function NewOffer() {
         type: "comparison",
         action: "generated",
       });
-      toast.success(`Offer saved to backend`);
+      toast.success(`Offer saved`);
     } else if (offerMode === "allplans") {
       if (!proj || !unit || selectedPlanIds.length === 0 || !client.trim())
         return;
@@ -1114,7 +1125,7 @@ export default function NewOffer() {
         type: "allplans",
         action: "generated",
       });
-      toast.success(`Offer saved to backend`);
+      toast.success(`Offer saved`);
     } else if (offerMode === "recovery") {
       if (!proj || !unit || !client.trim()) return;
       const bp = recoveryBaseId
@@ -1122,18 +1133,27 @@ export default function NewOffer() {
         : (recoverySchedule?.basePlan as PaymentPlan);
       if (!bp) return;
       const freshResult = buildRecoverySchedule({
-        project: { completionDate: proj.completionDate, bookingToken: proj.bookingToken || DEFAULT_BOOKING_TOKEN },
+        project: {
+          completionDate: proj.completionDate,
+          bookingToken: proj.bookingToken || DEFAULT_BOOKING_TOKEN,
+        },
         unit: { price: unit.price },
         basePlan: bp,
-        monthlyPct: recoveryMonthlyPct ? +recoveryMonthlyPct : recoverySchedule?.reducedPct || 0,
+        monthlyPct: recoveryMonthlyPct
+          ? +recoveryMonthlyPct
+          : recoverySchedule?.reducedPct || 0,
         freq: recoveryFreq || recoverySchedule?.freq || 6,
         priceOverride: priceOverride ? +priceOverride : undefined,
         extraDiscount,
         split,
         day7Input,
       });
-      const rows = freshResult ? freshResult.rows : (recoverySchedule?.rows || []);
-      const netPrice = freshResult ? freshResult.netPrice : (recoverySchedule?.netPrice || 0);
+      const rows = freshResult
+        ? freshResult.rows
+        : recoverySchedule?.rows || [];
+      const netPrice = freshResult
+        ? freshResult.netPrice
+        : recoverySchedule?.netPrice || 0;
       saveOfferToApi({
         planId: bp.id,
         planLabel: `Recovery: ${bp.label} (${freshResult ? freshResult.reducedPct : recoverySchedule?.reducedPct || 0}%/mo)`,
@@ -1143,7 +1163,7 @@ export default function NewOffer() {
         type: "recovery",
         action: "generated",
       });
-      toast.success(`Offer saved to backend`);
+      toast.success(`Offer saved`);
     } else {
       if (!proj || !unit || !effPlan || !client.trim()) return;
       const effUnitPrice =
@@ -1166,8 +1186,38 @@ export default function NewOffer() {
         type: "single",
         action: "generated",
       });
-      toast.success(`Offer saved to backend`);
+      toast.success(`Offer saved`);
     }
+
+    // Reset wizard state to go back to New Offer (Step 1)
+    setProj(null);
+    setUnit(null);
+    setPlan(null);
+    setOfferMode("normal");
+    setSelectedPlanIds([]);
+    setSplit(1);
+    setUnitSearch("");
+    setUnitTypeFilter("");
+    setPriceOverride("");
+    setExtraDiscount(0);
+    setDay7Input(DEFAULT_DAY7_PAYMENT);
+    setClient("");
+    setClientPhone("");
+    setExtraCurrency("");
+    setLiveRate("");
+    setRecoveryBaseId("");
+    setRecoveryMonthlyPct("");
+    setRecoveryFreq(6);
+    setRecoverySchedule(null);
+    setFetchedUnits([]);
+    setUnitPaymentPlans([]);
+    setStep(1);
+
+    // Clear local storage values
+    localStorage.removeItem("reportage_offer_proj_id");
+    localStorage.removeItem("reportage_offer_unit_id");
+    localStorage.removeItem("reportage_offer_plan_id");
+    localStorage.removeItem("reportage_offer_step");
   };
 
   if (pdfPreview) {
@@ -1179,6 +1229,27 @@ export default function NewOffer() {
         fileName={pdfPreview.fileName}
         onClose={() => setPdfPreview(null)}
       />
+    );
+  }
+
+  if (projects.length === 0 && !loadingProjects) {
+    return (
+      <div>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="font-serif text-[26px] text-navy font-semibold">
+            New Sales Offer
+          </h1>
+        </div>
+        <div className="text-center py-16 bg-white rounded-[10px] border border-border shadow-[0_2px_8px_rgba(30,60,120,0.06)] p-6">
+          <div className="text-navy font-serif text-[20px] font-semibold mb-2">
+            There is no new offer available
+          </div>
+          <div className="text-navy-dim text-[13px]">
+            Please check back later or contact your admin to upload
+            availabilities.
+          </div>
+        </div>
+      </div>
     );
   }
 
@@ -1249,7 +1320,7 @@ export default function NewOffer() {
           {steps.map((s, i) => (
             <div
               key={i}
-              className="flex-1 text-center p-[8px_4px] text-[11px] font-mono tracking-[1px]"
+              className="flex-1 text-center p-[8px_4px] text-[11px] font-mono tracking-[1px] whitespace-nowrap"
               style={{
                 borderBottom:
                   step === i + 1
@@ -1264,8 +1335,11 @@ export default function NewOffer() {
                 fontWeight: step === i + 1 ? 700 : 400,
               }}
             >
-              {step > i + 1 ? "v " : ""}
-              {i + 1}. {s}
+              {step > i + 1 ? "✓ " : ""}
+              {i + 1}.{" "}
+              <span className={step === i + 1 ? "inline" : "hidden sm:inline"}>
+                {s}
+              </span>
             </div>
           ))}
         </div>
@@ -1580,7 +1654,7 @@ export default function NewOffer() {
             className="p-[16px] rounded-[10px] border border-dashed border-border mt-4"
             style={{ background: "#F0F4FA" }}
           >
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
               <div>
                 <div className="text-[13px] font-semibold text-navy">
                   Did not find unit?
@@ -1592,7 +1666,7 @@ export default function NewOffer() {
               </div>
               <button
                 onClick={() => setGhostModalOpen(true)}
-                className="h-[38px] px-4 rounded-[6px] text-sm font-bold cursor-pointer text-navy bg-linear-to-r from-[#C9A84C] to-[#E4C97A] border-none"
+                className="h-[38px] px-4 rounded-[6px] text-sm font-bold cursor-pointer text-navy bg-linear-to-r from-[#C9A84C] to-[#E4C97A] border-none whitespace-nowrap w-full sm:w-auto text-center"
               >
                 + Create Ghost Unit
               </button>
@@ -1735,7 +1809,7 @@ export default function NewOffer() {
           </div>
 
           <div
-            className="flex gap-1 p-1 rounded-[6px] mb-4"
+            className="flex gap-1 p-1 rounded-[6px] mb-4 overflow-x-auto scrollbar-none whitespace-nowrap"
             style={{ background: "#0A0E18" }}
           >
             {[
@@ -1755,7 +1829,7 @@ export default function NewOffer() {
                   );
                   setIsEvent(m.id === "event");
                 }}
-                className="flex-1 text-center p-[9px_4px] rounded-[6px] cursor-pointer text-[11px]"
+                className="flex-1 text-center p-[9px_12px] rounded-[6px] cursor-pointer text-[11px] shrink-0 whitespace-nowrap"
                 style={{
                   background:
                     offerMode === m.id
@@ -1984,7 +2058,10 @@ export default function NewOffer() {
                     .map((p) => {
                       const sel = recoveryBaseId === p.id;
                       const effDisc = (p.discount || 0) + (extraDiscount || 0);
-                      const effPrice = priceOverride && +priceOverride > 0 ? +priceOverride : unit.price;
+                      const effPrice =
+                        priceOverride && +priceOverride > 0
+                          ? +priceOverride
+                          : unit.price;
                       const netP = effPrice * (1 - effDisc / 100);
                       return (
                         <div
@@ -2055,7 +2132,7 @@ export default function NewOffer() {
                         (1 - ((bp.discount || 0) + (extraDiscount || 0)) / 100);
                       return (
                         <div>
-                          <div className="grid grid-cols-2 gap-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                               <div className="text-[10px] font-mono text-navy-light tracking-[1.5px] mb-1.5 uppercase">
                                 REDUCED MONTHLY % (original: {bp.installmentPct}
@@ -2147,7 +2224,7 @@ export default function NewOffer() {
                           <div className="text-[9px] font-mono text-gold tracking-[1.5px] mb-2">
                             STRUCTURE PREVIEW
                           </div>
-                          <div className="flex gap-5 flex-wrap">
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div>
                               <div className="text-[9px] text-navy-dim">
                                 MONTHLY
@@ -2228,79 +2305,81 @@ export default function NewOffer() {
                       {recoverySchedule.rows.length} payments
                     </span>
                   </div>
-                  <table className="w-full border-collapse mb-3">
-                    <thead>
-                      <tr className="bg-surface">
-                        {["#", "MILESTONE", "DATE", "AMOUNT"].map((h) => (
-                          <th
-                            key={h}
-                            className={`px-3 py-[9px] text-[11px] text-navy-light tracking-[1.4px] uppercase font-mono border-b-2 border-border ${
-                              h === "AMOUNT" ? "text-right" : "text-left"
-                            }`}
-                          >
-                            {h}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {recoverySchedule.rows.map((r, i) => {
-                        const isRec = r.type === "recovery";
-                        const isComp = r.type === "completion";
-                        return (
-                          <tr
-                            key={i}
-                            className="border-b border-border hover:bg-[#F8FAFF] transition-colors"
-                          >
-                            <td
-                              className={`px-3 py-[11px] text-[11px] w-[28px] ${
-                                isComp
-                                  ? "text-green font-semibold"
-                                  : isRec
-                                    ? "text-blue"
-                                    : "text-navy-dim"
+                  <div className="overflow-x-auto border border-border rounded-[8px] mb-3">
+                    <table className="w-full border-collapse">
+                      <thead>
+                        <tr className="bg-surface">
+                          {["#", "MILESTONE", "DATE", "AMOUNT"].map((h) => (
+                            <th
+                              key={h}
+                              className={`px-3 py-[9px] text-[11px] text-navy-light tracking-[1.4px] uppercase font-mono border-b border-border whitespace-nowrap ${
+                                h === "AMOUNT" ? "text-right" : "text-left"
                               }`}
                             >
-                              {i + 1}
-                            </td>
-                            <td
-                              className="px-3 text-[13px] py-[13px]"
-                              style={{
-                                fontWeight: isRec || isComp ? 600 : 400,
-                                color: isRec
-                                  ? pc
-                                  : isComp
-                                    ? "#1A8A5A"
-                                    : "#1A2340",
-                              }}
+                              {h}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {recoverySchedule.rows.map((r, i) => {
+                          const isRec = r.type === "recovery";
+                          const isComp = r.type === "completion";
+                          return (
+                            <tr
+                              key={i}
+                              className="border-b border-border hover:bg-[#F8FAFF] transition-colors"
                             >
-                              {r.label}
-                              {isRec && (
-                                <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[8px] font-mono border ml-1.5 bg-green-dim text-green border-[rgba(26,138,90,0.3)]">
-                                  RECOVERY
-                                </span>
-                              )}
-                            </td>
-                            <td className="px-3 py-[11px] text-[11px] text-navy-dim">
-                              {r.date ? fmtDate(r.date) : ""}
-                            </td>
-                            <td
-                              className="px-3 py-[11px] text-[13px] font-semibold text-right font-mono"
-                              style={{
-                                color: isRec
-                                  ? pc
-                                  : isComp
-                                    ? "#1A8A5A"
-                                    : "#1A2340",
-                              }}
-                            >
-                              {fmtAED(r.amount)}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                              <td
+                                className={`px-3 py-[11px] text-[11px] w-[28px] whitespace-nowrap ${
+                                  isComp
+                                    ? "text-green font-semibold"
+                                    : isRec
+                                      ? "text-blue"
+                                      : "text-navy-dim"
+                                }`}
+                              >
+                                {i + 1}
+                              </td>
+                              <td
+                                className="px-3 text-[13px] py-[13px] whitespace-nowrap"
+                                style={{
+                                  fontWeight: isRec || isComp ? 600 : 400,
+                                  color: isRec
+                                    ? pc
+                                    : isComp
+                                      ? "#1A8A5A"
+                                      : "#1A2340",
+                                }}
+                              >
+                                {r.label}
+                                {isRec && (
+                                  <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[8px] font-mono border ml-1.5 bg-green-dim text-green border-[rgba(26,138,90,0.3)] whitespace-nowrap">
+                                    RECOVERY
+                                  </span>
+                                )}
+                              </td>
+                              <td className="px-3 py-[11px] text-[11px] text-navy-dim whitespace-nowrap">
+                                {r.date ? fmtDate(r.date) : ""}
+                              </td>
+                              <td
+                                className="px-3 py-[11px] text-[13px] font-semibold text-right font-mono whitespace-nowrap"
+                                style={{
+                                  color: isRec
+                                    ? pc
+                                    : isComp
+                                      ? "#1A8A5A"
+                                      : "#1A2340",
+                                }}
+                              >
+                                {fmtAED(r.amount)}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
                   <button
                     onClick={() => {
                       setRecoverySchedule(null);
@@ -2400,10 +2479,12 @@ export default function NewOffer() {
             ].map((d) => (
               <div
                 key={d[0]}
-                className="flex justify-between py-2 border-b border-border"
+                className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-border gap-1 sm:gap-4"
               >
-                <span className="text-[12px] text-navy-light">{d[0]}</span>
-                <span className="text-[12px] font-semibold text-navy">
+                <span className="text-[12px] text-navy-light shrink-0">
+                  {d[0]}
+                </span>
+                <span className="text-[12px] font-semibold text-navy text-left sm:text-right break-words">
                   {d[1]}
                 </span>
               </div>
@@ -2430,24 +2511,43 @@ export default function NewOffer() {
                 {(() => {
                   const bookingTok = proj.bookingToken || DEFAULT_BOOKING_TOKEN;
                   let maxDay7: number | null = null;
-                  if ((offerMode === "normal" || offerMode === "event") && (effPlan || plan)) {
+                  if (
+                    (offerMode === "normal" || offerMode === "event") &&
+                    (effPlan || plan)
+                  ) {
                     const p = (effPlan || plan)!;
-                    const ep = priceOverride && +priceOverride > 0 ? +priceOverride : unit.price;
+                    const ep =
+                      priceOverride && +priceOverride > 0
+                        ? +priceOverride
+                        : unit.price;
                     const np = ep * (1 - activeDiscount / 100);
-                    maxDay7 = Math.round(np * p.dp / 100) - bookingTok;
+                    maxDay7 = Math.round((np * p.dp) / 100) - bookingTok;
                   } else if (offerMode === "recovery") {
-                    const bp = recoveryBaseId ? availPlans.find((p) => p.id === recoveryBaseId) : recoverySchedule?.basePlan;
+                    const bp = recoveryBaseId
+                      ? availPlans.find((p) => p.id === recoveryBaseId)
+                      : recoverySchedule?.basePlan;
                     if (bp) {
-                      const ep = priceOverride && +priceOverride > 0 ? +priceOverride : unit.price;
+                      const ep =
+                        priceOverride && +priceOverride > 0
+                          ? +priceOverride
+                          : unit.price;
                       const td = (bp.discount || 0) + (extraDiscount || 0);
                       const np = ep * (1 - td / 100);
-                      maxDay7 = Math.round(np * bp.dp / 100) - bookingTok;
+                      maxDay7 = Math.round((np * bp.dp) / 100) - bookingTok;
                     }
                   }
                   if (maxDay7 !== null && +day7Input > maxDay7) {
-                    return <div className="text-[11px] text-orange mt-1">Max Day 7 is {fmtAED(maxDay7)} (remaining DP)</div>;
+                    return (
+                      <div className="text-[11px] text-orange mt-1">
+                        Max Day 7 is {fmtAED(maxDay7)} (remaining DP)
+                      </div>
+                    );
                   }
-                  return <div className="text-[10px] text-navy-dim mt-0.5">First payment from DP split</div>;
+                  return (
+                    <div className="text-[10px] text-navy-dim mt-0.5">
+                      First payment from DP split
+                    </div>
+                  );
                 })()}
               </div>
               <div className="flex-1 min-w-[160px]">
@@ -2560,8 +2660,8 @@ export default function NewOffer() {
           {(offerMode === "normal" || offerMode === "event") && plan && (
             <div className="mb-4">
               <div className={lbl}>Down Payment Split</div>
-              <div className="flex gap-3 items-start flex-wrap">
-                <div className="flex-1 min-w-[200px]">
+              <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-start">
+                <div className="flex-1 min-w-0">
                   <select
                     className={selS}
                     value={split}
@@ -2590,7 +2690,7 @@ export default function NewOffer() {
                 </div>
                 {(proj.dpSplitOptions || [1]).length > 1 && (
                   <div
-                    className="p-[10px_14px] rounded-[6px] shrink-0 text-[12px]"
+                    className="p-[10px_14px] rounded-[6px] shrink-0 text-[12px] text-center sm:text-left"
                     style={{
                       background: "rgba(184,134,11,0.05)",
                       border: "1px solid rgba(184,134,11,0.25)",
@@ -2652,16 +2752,11 @@ export default function NewOffer() {
                     }}
                   >
                     {c.label}
-                    {c.code === "USD" && isSelected && (
-                      <span className="text-[9px] text-green block font-semibold">
-                        Fixed: 1 USD = AED 3.65
-                      </span>
-                    )}
                   </div>
                 );
               })}
             </div>
-            {extraCurrency && extraCurrency !== "USD" && (
+            {extraCurrency && (
               <div className="p-[10px_16px] rounded-[6px] flex items-center gap-3.5 flex-wrap bg-[#E8F0FE] border border-[#BDD1EB] text-[13px] text-navy">
                 <span className="shrink-0">1 AED =</span>
                 <input
@@ -2688,14 +2783,14 @@ export default function NewOffer() {
             )}
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <button
               disabled={
                 !client.trim() ||
                 (offerMode === "comparison" && selectedPlanIds.length === 0)
               }
               onClick={handleGenerate}
-              className="flex-1 p-[14px] rounded-[6px] text-[14px] font-bold text-white bg-green border-none disabled:opacity-40 disabled:cursor-not-allowed enabled:cursor-pointer enabled:hover:bg-[#15724C]"
+              className="flex-1 p-[14px] rounded-[6px] text-[14px] font-bold text-white bg-green border-none disabled:opacity-40 disabled:cursor-not-allowed enabled:cursor-pointer enabled:hover:bg-[#15724C] w-full text-center"
             >
               {offerMode === "comparison"
                 ? `Generate Comparison Table (${selectedPlanIds.length} plans)`
@@ -2712,7 +2807,7 @@ export default function NewOffer() {
                 (offerMode === "comparison" && selectedPlanIds.length === 0)
               }
               onClick={handleDone}
-              className="flex-1 p-[14px] rounded-[6px] text-[14px] font-bold text-white bg-green border-none disabled:opacity-40 disabled:cursor-not-allowed enabled:cursor-pointer enabled:hover:bg-[#146b45]"
+              className="flex-1 p-[14px] rounded-[6px] text-[14px] font-bold text-white bg-green border-none disabled:opacity-40 disabled:cursor-not-allowed enabled:cursor-pointer enabled:hover:bg-[#146b45] w-full text-center"
             >
               Done
             </button>
@@ -5315,21 +5410,17 @@ function ServerPdfPreview({
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        padding: "20px",
       }}
+      className="p-0 sm:p-5"
     >
       <div
         style={{
-          width: "100%",
-          maxWidth: "1000px",
-          height: "90vh",
+          background: "#fff",
           display: "flex",
           flexDirection: "column",
-          background: "#fff",
-          borderRadius: "12px",
           overflow: "hidden",
-          boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
         }}
+        className="w-full sm:max-w-[1000px] h-full sm:h-[90vh] sm:rounded-[12px] rounded-none shadow-2xl"
       >
         {/* Header */}
         <div
@@ -5366,13 +5457,37 @@ function ServerPdfPreview({
         </div>
 
         {/* Content */}
-        <div style={{ flex: 1, padding: "12px", background: "#F0F4FA" }}>
+        <div
+          style={{
+            flex: 1,
+            padding: "12px",
+            background: "#F0F4FA",
+            overflow: "auto",
+            WebkitOverflowScrolling: "touch",
+          }}
+          className="flex flex-col gap-2"
+        >
+          {blobUrl && (
+            <div className="block sm:hidden text-center p-2 bg-[#E8F0FE] rounded-[6px] border border-[#BDD1EB]">
+              <span className="text-[12px] text-navy font-semibold">
+                On mobile? If PDF doesn't load/scroll, click{" "}
+                <a
+                  href={blobUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue underline font-bold animate-pulse"
+                >
+                  Open PDF in new tab
+                </a>
+              </span>
+            </div>
+          )}
           {blobUrl ? (
             <iframe
               src={blobUrl}
               width="100%"
               height="100%"
-              style={{ border: "none", borderRadius: "6px" }}
+              style={{ border: "none", borderRadius: "6px", flex: 1 }}
             />
           ) : (
             <div className="flex items-center justify-center h-full text-navy-dim text-[13px] font-mono animate-pulse">

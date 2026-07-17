@@ -68,7 +68,7 @@ export default function ForgotPassword() {
   }
 
   return (
-    <div className="w-[520px] my-5 bg-white border border-border rounded-[10px] shadow-[0_2px_8px_rgba(30,60,120,0.06)] p-[48px_40px]">
+    <div className="w-full max-w-[520px] mx-4 my-5 bg-white border border-border rounded-[10px] shadow-[0_2px_8px_rgba(30,60,120,0.06)] p-6 md:p-10 lg:p-[48px_40px]">
       <div className="text-center mb-8">
         <div className="w-[60px] h-[60px] rounded-xl bg-gold-dim border border-border flex items-center justify-center text-[28px] mx-auto mb-4">
           <span className="text-gold font-bold">R</span>

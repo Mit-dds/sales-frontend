@@ -12,9 +12,9 @@ interface ModalProps {
 }
 
 const sizeStyles = {
-  sm: 'max-w-sm',
-  md: 'max-w-lg',
-  lg: 'max-w-2xl',
+  sm: 'max-w-sm w-[calc(100%-2rem)]',
+  md: 'max-w-lg w-[calc(100%-2rem)]',
+  lg: 'max-w-2xl w-[calc(100%-2rem)]',
 }
 
 export function Modal({ open, onClose, title, children, footer, size = 'md' }: ModalProps) {
@@ -48,7 +48,7 @@ export function Modal({ open, onClose, title, children, footer, size = 'md' }: M
           max-h-[90vh] flex flex-col
         `}
       >
-        <div className="flex-1 overflow-y-auto px-6 py-4">
+        <div className="flex-1 overflow-y-auto px-4 md:px-6 py-4">
           {title && (
             <div className="flex items-center justify-between mb-4">
               <div className="flex-1">{title}</div>

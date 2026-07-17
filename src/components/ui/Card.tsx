@@ -13,7 +13,7 @@ export function Card({
   hover = false,
   onClick,
   topBorderColor,
-  padding = 'p-6',
+  padding = 'p-4 md:p-6',
   className = '',
   ...props
 }: CardProps) {

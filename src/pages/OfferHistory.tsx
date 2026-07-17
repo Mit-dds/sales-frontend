@@ -217,79 +217,81 @@ export default function OfferHistory() {
             </div>
           )}
           <div className={`bg-white border border-border rounded-[10px] overflow-hidden shadow-[0_2px_8px_rgba(30,60,120,0.06)] transition-opacity duration-200 ${loading ? "opacity-50" : ""}`}>
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-surface">
-                  {isAdmin && (
-                    <th className="px-3 py-[9px] text-left text-[10px] text-navy-light font-mono tracking-[1.4px] uppercase border-b-2 border-border">
-                      Agent
-                    </th>
-                  )}
-                  <th className="px-3 py-[9px] text-left text-[10px] text-navy-light font-mono tracking-[1.4px] uppercase border-b-2 border-border">
-                    Date
-                  </th>
-                  <th className="px-3 py-[9px] text-left text-[10px] text-navy-light font-mono tracking-[1.4px] uppercase border-b-2 border-border">
-                    Client
-                  </th>
-                  <th className="px-3 py-[9px] text-left text-[10px] text-navy-light font-mono tracking-[1.4px] uppercase border-b-2 border-border">
-                    Project
-                  </th>
-                  <th className="px-3 py-[9px] text-left text-[10px] text-navy-light font-mono tracking-[1.4px] uppercase border-b-2 border-border">
-                    Unit
-                  </th>
-                  <th className="px-3 py-[9px] text-left text-[10px] text-navy-light font-mono tracking-[1.4px] uppercase border-b-2 border-border">
-                    Plan
-                  </th>
-                  <th className="px-3 py-[9px] text-left text-[10px] text-navy-light font-mono tracking-[1.4px] uppercase border-b-2 border-border">
-                    Net Price
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {offers.map((h) => (
-                  <tr
-                    key={h.id}
-                    className="border-b border-border last:border-b-0"
-                  >
+            <div className="overflow-x-auto overflow-y-auto max-h-[600px]">
+              <table className="w-full border-collapse min-w-[700px]">
+                <thead>
+                  <tr className="bg-surface">
                     {isAdmin && (
-                      <td className="px-3 py-[11px] text-[13px] text-navy">
-                        <div className="flex items-center gap-2">
-                          <Avatar name={h.agentName} size={28} />
-                          <span className="text-[12px]">{h.agentName}</span>
-                        </div>
-                      </td>
+                      <th className="px-3 py-[9px] text-left text-[10px] text-navy-light font-mono tracking-[1.4px] uppercase border-b-2 border-border">
+                        Agent
+                      </th>
                     )}
-                    <td className="px-3 py-[11px] text-[11px] text-navy-light font-mono whitespace-nowrap">
-                      {new Date(h.date).toLocaleDateString("en-AE", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </td>
-                    <td className="px-3 py-[11px] text-[13px] text-navy">
-                      <div className="font-medium">{h.clientName}</div>
-                      {h.clientPhone && (
-                        <div className="text-[11px] text-navy-dim">
-                          {h.clientPhone}
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-3 py-[11px] text-[13px] text-navy">
-                      {h.projectName}
-                    </td>
-                    <td className="px-3 py-[11px] text-[13px] text-gold font-mono">
-                      {h.unitNumber}
-                    </td>
-                    <td className="px-3 py-[11px] text-[12px] text-navy-light">
-                      {h.planLabel}
-                    </td>
-                    <td className="px-3 py-[11px] text-[13px] text-green font-semibold">
-                      {h.netPrice ? fmtAED(h.netPrice) : "-"}
-                    </td>
+                    <th className="px-3 py-[9px] text-left text-[10px] text-navy-light font-mono tracking-[1.4px] uppercase border-b-2 border-border">
+                      Date
+                    </th>
+                    <th className="px-3 py-[9px] text-left text-[10px] text-navy-light font-mono tracking-[1.4px] uppercase border-b-2 border-border">
+                      Client
+                    </th>
+                    <th className="px-3 py-[9px] text-left text-[10px] text-navy-light font-mono tracking-[1.4px] uppercase border-b-2 border-border">
+                      Project
+                    </th>
+                    <th className="px-3 py-[9px] text-left text-[10px] text-navy-light font-mono tracking-[1.4px] uppercase border-b-2 border-border">
+                      Unit
+                    </th>
+                    <th className="px-3 py-[9px] text-left text-[10px] text-navy-light font-mono tracking-[1.4px] uppercase border-b-2 border-border">
+                      Plan
+                    </th>
+                    <th className="px-3 py-[9px] text-left text-[10px] text-navy-light font-mono tracking-[1.4px] uppercase border-b-2 border-border">
+                      Net Price
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {offers.map((h) => (
+                    <tr
+                      key={h.id}
+                      className="border-b border-border last:border-b-0"
+                    >
+                      {isAdmin && (
+                        <td className="px-3 py-[11px] text-[13px] text-navy">
+                          <div className="flex items-center gap-2">
+                            <Avatar name={h.agentName} size={28} />
+                            <span className="text-[12px]">{h.agentName}</span>
+                          </div>
+                        </td>
+                      )}
+                      <td className="px-3 py-[11px] text-[11px] text-navy-light font-mono whitespace-nowrap">
+                        {new Date(h.date).toLocaleDateString("en-AE", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </td>
+                      <td className="px-3 py-[11px] text-[13px] text-navy">
+                        <div className="font-medium">{h.clientName}</div>
+                        {h.clientPhone && (
+                          <div className="text-[11px] text-navy-dim">
+                            {h.clientPhone}
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-3 py-[11px] text-[13px] text-navy">
+                        {h.projectName}
+                      </td>
+                      <td className="px-3 py-[11px] text-[13px] text-gold font-mono">
+                        {h.unitNumber}
+                      </td>
+                      <td className="px-3 py-[11px] text-[12px] text-navy-light">
+                        {h.planLabel}
+                      </td>
+                      <td className="px-3 py-[11px] text-[13px] text-green font-semibold">
+                        {h.netPrice ? fmtAED(h.netPrice) : "-"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           {/* Pagination */}

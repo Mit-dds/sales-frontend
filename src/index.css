@@ -23,6 +23,29 @@
   --font-mono: 'DM Mono', monospace;
 }
 
+@keyframes slide-in-left {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@utility animate-slide-in-left {
+  animation: slide-in-left 0.25s ease-out;
+}
+@utility animate-fade-in {
+  animation: fade-in 0.2s ease-out;
+}
+@utility animate-slide-down {
+  animation: slide-down 0.2s ease-out;
+}
+
 @layer base {
   * {
     box-sizing: border-box;
@@ -33,6 +56,14 @@
   input:focus, select:focus, textarea:focus {
     border-color: #1E6FD9 !important;
     outline: none !important;
+  }
+  select {
+    appearance: none !important;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234A5880' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 12px center !important;
+    background-size: 14px !important;
+    padding-right: 32px !important;
   }
   /* Custom scrollbar */
   ::-webkit-scrollbar {

@@ -52,9 +52,9 @@ export function Table<T>({
   })
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-border">
-      <table className="w-full border-collapse">
-        <thead>
+    <div className="overflow-x-auto overflow-y-auto rounded-lg border border-border max-h-[600px]">
+      <table className="w-full border-collapse min-w-[600px]">
+        <thead className="sticky top-0 z-10">
           <tr className="bg-surface">
             {columns.map(col => (
               <th

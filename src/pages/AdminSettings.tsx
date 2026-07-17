@@ -135,7 +135,7 @@ export default function AdminSettings() {
         <div className="text-[12px] text-navy-dim mb-4">
           Enter how much 1 AED equals in each currency.
         </div>
-        <div className="grid grid-cols-3 gap-3 mb-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-3">
           {CURRENCIES.map(([key, label]) => (
             <div key={key}>
               <div className="text-[10px] text-navy-light tracking-[1.6px] uppercase font-mono mb-1.5">

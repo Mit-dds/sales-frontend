@@ -69,7 +69,7 @@ function F({
   children: ReactNode;
 }) {
   return (
-    <div className={flex ? "flex-1 min-w-0" : "mb-4"}>
+    <div className={flex ? "flex-1 min-w-[140px]" : "mb-4"}>
       <label className="block text-[10px] font-mono text-navy-light tracking-[1.6px] uppercase mb-1.5">
         {lbl}
       </label>
@@ -158,79 +158,81 @@ export default function PaymentPlanForm({
   return (
     <div>
       {plans.length > 0 && (
-        <table className="w-full border-collapse mb-4">
-          <thead>
-            <tr className="bg-surface">
-              {["LABEL", "DP%", "INSTALL", "DURATION", "DISC%", "TYPE", ""].map(
-                (h) => (
-                  <th
-                    key={h}
-                    className="px-3 py-[9px] text-left text-[11px] text-navy-light tracking-[1.4px] uppercase font-mono border-b-2 border-border"
-                  >
-                    {h}
-                  </th>
-                ),
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {plans.map((x) => (
-              <tr
-                key={x.id}
-                className="border-b border-border hover:bg-[#F8FAFF] transition-colors"
-              >
-                <td className="px-3 py-[11px] text-[13px] text-navy">
-                  {x.label}
-                </td>
-                <td className="px-3 py-[11px] text-[13px] text-navy">
-                  {x.dp}%
-                </td>
-                <td className="px-3 py-[11px] text-[13px] text-navy">
-                  {x.installmentPct > 0 ? `${x.installmentPct}%/mo` : "None"}
-                </td>
-                <td className="px-3 py-[11px] text-[11px] text-navy-light">
-                  {x.durationType === "fixed_months"
-                    ? `${x.durationMonths}mo`
-                    : "Till HO"}
-                </td>
-                <td className="px-3 py-[11px] text-[13px]">
-                  <span className="inline-flex items-center rounded px-2 py-0.5 text-[10px] font-mono border bg-green-dim text-green border-[rgba(26,138,90,0.3)]">
-                    {x.discount}%
-                  </span>
-                </td>
-                <td className="px-3 py-[11px]">
-                  <span
-                    className={`inline-flex items-center rounded px-2 py-0.5 text-[10px] font-mono border ${
-                      x.planType === "normal"
-                        ? "bg-blue-dim text-blue border-[rgba(30,111,217,0.3)]"
-                        : x.planType === "event"
-                          ? "bg-orange-dim text-orange border-[rgba(200,100,10,0.3)]"
-                          : "bg-green-dim text-green border-[rgba(26,138,90,0.3)]"
-                    }`}
-                  >
-                    {x.planType || "normal"}
-                  </span>
-                </td>
-                <td className="px-3 py-[11px]">
-                  <div className="flex gap-1.5">
-                    <button
-                      onClick={() => startEdit(x)}
-                      className="text-xs font-semibold cursor-pointer border border-border text-blue bg-white hover:bg-[rgba(30,111,217,0.04)] px-2 py-1 rounded-[6px]"
+        <div className="overflow-x-auto border border-border rounded-[8px] mb-4">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-surface animate-fade-in">
+                {["LABEL", "DP%", "INSTALL", "DURATION", "DISC%", "TYPE", ""].map(
+                  (h) => (
+                    <th
+                      key={h}
+                      className="px-3 py-[9px] text-left text-[11px] text-navy-light tracking-[1.4px] uppercase font-mono border-b-2 border-border whitespace-nowrap"
                     >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => onRemove(x.id)}
-                      className="text-xs font-semibold cursor-pointer border border-border text-red bg-white hover:bg-[rgba(192,57,43,0.04)] px-2.5 py-1 rounded-[6px]"
-                    >
-                      <X size={12} />
-                    </button>
-                  </div>
-                </td>
+                      {h}
+                    </th>
+                  ),
+                )}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {plans.map((x) => (
+                <tr
+                  key={x.id}
+                  className="border-b border-border hover:bg-[#F8FAFF] transition-colors"
+                >
+                  <td className="px-3 py-[11px] text-[13px] text-navy whitespace-nowrap">
+                    {x.label}
+                  </td>
+                  <td className="px-3 py-[11px] text-[13px] text-navy whitespace-nowrap">
+                    {x.dp}%
+                  </td>
+                  <td className="px-3 py-[11px] text-[13px] text-navy whitespace-nowrap">
+                    {x.installmentPct > 0 ? `${x.installmentPct}%/mo` : "None"}
+                  </td>
+                  <td className="px-3 py-[11px] text-[11px] text-navy-light whitespace-nowrap">
+                    {x.durationType === "fixed_months"
+                      ? `${x.durationMonths}mo`
+                      : "Till HO"}
+                  </td>
+                  <td className="px-3 py-[11px] text-[13px] whitespace-nowrap">
+                    <span className="inline-flex items-center rounded px-2 py-0.5 text-[10px] font-mono border bg-green-dim text-green border-[rgba(26,138,90,0.3)]">
+                      {x.discount}%
+                    </span>
+                  </td>
+                  <td className="px-3 py-[11px] whitespace-nowrap">
+                    <span
+                      className={`inline-flex items-center rounded px-2 py-0.5 text-[10px] font-mono border ${
+                        x.planType === "normal"
+                          ? "bg-blue-dim text-blue border-[rgba(30,111,217,0.3)]"
+                          : x.planType === "event"
+                            ? "bg-orange-dim text-orange border-[rgba(200,100,10,0.3)]"
+                            : "bg-green-dim text-green border-[rgba(26,138,90,0.3)]"
+                      }`}
+                    >
+                      {x.planType || "normal"}
+                    </span>
+                  </td>
+                  <td className="px-3 py-[11px] whitespace-nowrap">
+                    <div className="flex gap-1.5">
+                      <button
+                        onClick={() => startEdit(x)}
+                        className="text-xs font-semibold cursor-pointer border border-border text-blue bg-white hover:bg-[rgba(30,111,217,0.04)] px-2 py-1 rounded-[6px]"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => onRemove(x.id)}
+                        className="text-xs font-semibold cursor-pointer border border-border text-red bg-white hover:bg-[rgba(192,57,43,0.04)] px-2.5 py-1 rounded-[6px]"
+                      >
+                        <X size={12} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       <div className="p-[14px_16px] bg-surface border border-border rounded-[6px]">

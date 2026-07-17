@@ -159,7 +159,7 @@ export default function Availability() {
         </h1>
       </div>
 
-      <div className="flex items-center justify-between p-[14px_20px] rounded-[10px] border border-border mb-4 bg-white">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between p-[14px_20px] rounded-[10px] border border-border mb-4 bg-white gap-3">
         <div className="flex gap-3 items-center flex-wrap">
           <span
             className={`inline-flex items-center rounded px-2.5 py-1 text-[11px] font-mono border ${
@@ -182,7 +182,7 @@ export default function Availability() {
         {totalUnits > 0 && (
           <button
             onClick={handleClearAll}
-            className="h-[30px] px-3.5 rounded-[6px] text-xs font-semibold cursor-pointer border border-[#F5C2C2] text-red bg-white hover:bg-[#FFF5F5] transition-colors"
+            className="h-[30px] px-3.5 rounded-[6px] text-xs font-semibold cursor-pointer border border-[#F5C2C2] text-red bg-white hover:bg-[#FFF5F5] transition-colors self-end sm:self-auto shrink-0"
           >
             Clear All
           </button>

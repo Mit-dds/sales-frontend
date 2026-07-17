@@ -10,7 +10,7 @@ interface AuthContextValue {
   signIn: (emailOrPhone: string, password: string) => Promise<User>
   signOut: () => void
   updateUser: (updated: User) => void
-  updateProfile: (data: { name?: string; photo?: File | null; watermark?: File | null }) => Promise<User>
+  updateProfile: (data: { name?: string; email?: string; phone?: string; profileEmail?: string; photo?: File | null; watermark?: File | null }) => Promise<User>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -95,9 +95,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(updated)
   }, [setUser])
 
-  const updateProfile = useCallback(async (data: { name?: string; photo?: File | null; watermark?: File | null }) => {
+  const updateProfile = useCallback(async (data: { name?: string; email?: string; phone?: string; profileEmail?: string; photo?: File | null; watermark?: File | null }) => {
     const formData = new FormData()
     if (data.name !== undefined) formData.append('name', data.name)
+    if (data.email !== undefined) formData.append('email', data.email)
+    if (data.phone !== undefined) formData.append('phone', data.phone)
+    if (data.profileEmail !== undefined) formData.append('profileEmail', data.profileEmail)
     if (data.photo === null) {
       formData.append('photo', '')
     } else if (data.photo) {

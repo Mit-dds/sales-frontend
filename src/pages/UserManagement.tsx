@@ -197,8 +197,8 @@ export default function UserManagement() {
         </div>
       </div>
 
-      <div className="bg-white border border-border rounded-[10px] shadow-[0_2px_8px_rgba(30,60,120,0.06)]">
-        <table className="w-full border-collapse">
+      <div className="bg-white border border-border rounded-[10px] shadow-[0_2px_8px_rgba(30,60,120,0.06)] overflow-x-auto overflow-y-auto max-h-[600px]">
+        <table className="w-full border-collapse min-w-[600px]">
           <thead>
             <tr className="bg-surface">
               <th className="px-4 py-[11px] text-left text-[10px] text-navy-light font-mono tracking-[1.4px] uppercase border-b-2 border-border">
@@ -246,11 +246,11 @@ export default function UserManagement() {
                   <td className="px-4 py-[11px] text-[13px] text-navy">
                     <div className="flex items-center gap-2">
                       <Avatar name={u.name} size={28} />
-                      {u.name}
+                      <span className="truncate max-w-[120px] sm:max-w-none">{u.name}</span>
                     </div>
                   </td>
                   <td className="px-4 py-[11px] text-[13px] text-navy">
-                    {u.email}
+                    <span className="truncate max-w-[150px] sm:max-w-none block">{u.email}</span>
                   </td>
                   <td className="px-4 py-[11px]">
                     <span
@@ -301,10 +301,7 @@ export default function UserManagement() {
                           className="fixed inset-0 z-10"
                           onClick={() => setActiveMenuUserId(null)}
                         ></div>
-                        <div className="absolute right-4 mt-1 w-44 bg-white border border-border rounded-lg shadow-lg py-1.5 z-20">
-                          {/* <div className="text-[9px] text-navy-dim px-3 py-1 font-mono tracking-[1px] uppercase border-b border-surface mb-1">
-                            Change Status
-                          </div> */}
+                        <div className="fixed sm:absolute right-4 left-4 sm:left-auto mt-1 w-auto sm:w-44 bg-white border border-border rounded-lg shadow-lg py-1.5 z-20 animate-slide-down">
                           {(
                             [
                               "PENDING",
