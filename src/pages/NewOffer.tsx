@@ -871,6 +871,16 @@ export default function NewOffer() {
     });
 
     const offerData = {
+      clientName: client,
+      agentName: agentToggles.showAgentName ? user?.name : "",
+      agentPhone: agentToggles.showAgentPhone
+        ? (user as Record<string, string> | null)?.phone || ""
+        : "",
+      agentEmail: agentToggles.showAgentEmail
+        ? (user as Record<string, string> | null)?.profileEmail ||
+          user?.email ||
+          ""
+        : "",
       project: {
         name: proj.name,
         location: proj.location,
@@ -909,6 +919,8 @@ export default function NewOffer() {
       proj.unitTypes?.find((t) => t.id === unit.typeId) || unitType || null;
 
     const offerData = {
+      clientName: client,
+      agentName: agentToggles.showAgentName ? user?.name : "",
       project: {
         name: proj.name,
         location: proj.location,
@@ -5420,7 +5432,7 @@ function ServerPdfPreview({
           flexDirection: "column",
           overflow: "hidden",
         }}
-        className="w-full sm:max-w-[1000px] h-full sm:h-[90vh] sm:rounded-[12px] rounded-none shadow-2xl"
+        className="w-full sm:max-w-[1200px] h-full sm:h-[95vh] sm:rounded-[12px] rounded-none shadow-2xl"
       >
         {/* Header */}
         <div

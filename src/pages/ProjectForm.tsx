@@ -571,12 +571,17 @@ export default function ProjectForm({
         />
       )}
 
-      <div className="flex items-center mb-7 bg-white rounded-[10px] px-3 sm:px-5 py-4 border border-border overflow-x-auto gap-2 scrollbar-none">
+      <div className="flex items-center mb-7 bg-white rounded-[10px] px-3 sm:px-5 pt-4 pb-8 sm:pb-4 border border-border overflow-x-auto gap-2 scrollbar-none">
         {STEPS.map((s, i) => (
-          <div key={s.key} className="flex items-center flex-1 min-w-0">
-            <div className="flex items-center gap-2 shrink-0">
+          <div
+            key={s.key}
+            className={`flex items-center ${
+              i < STEPS.length - 1 ? "flex-1 min-w-0" : "shrink-0"
+            }`}
+          >
+            <div className="relative flex items-center gap-2 shrink-0">
               <div
-                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
+                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
                 style={{
                   background:
                     tab === s.key ? pc : stepIdx > i ? "#1A8A5A" : "#D0DCF0",
@@ -586,7 +591,11 @@ export default function ProjectForm({
                 {stepIdx > i ? "✓" : s.num}
               </div>
               <span
-                className={`text-xs ${tab === s.key ? "block" : "hidden sm:block"}`}
+                className={`text-[11px] sm:text-xs whitespace-nowrap ${
+                  tab === s.key
+                    ? "block absolute top-9 left-1/2 -translate-x-1/2 sm:static sm:translate-x-0"
+                    : "hidden sm:block"
+                }`}
                 style={{
                   fontWeight: tab === s.key ? 700 : 400,
                   color: tab === s.key ? pc : "#4A5880",
@@ -597,7 +606,7 @@ export default function ProjectForm({
             </div>
             {i < STEPS.length - 1 && (
               <div
-                className="flex-1 h-[2px] mx-3 min-w-[15px]"
+                className="flex-1 h-[2px] mx-2 sm:mx-3 min-w-[12px]"
                 style={{ background: stepIdx > i ? "#1A8A5A" : "#D0DCF0" }}
               />
             )}

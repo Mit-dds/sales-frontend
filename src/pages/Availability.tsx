@@ -277,6 +277,14 @@ export default function Availability() {
               </div>
             )}
           </div>
+          {parseResult.result.skipped > 0 && parseResult.result.errors.length === 0 && (
+            <div className="flex gap-2.5 flex-wrap mb-3">
+              <div className="text-[11px] text-orange">
+                {parseResult.result.skipped} rows skipped —
+                check project name, city, property type, and unit types match
+              </div>
+            </div>
+          )}
           {Object.keys(parseResult.result.byCity).length > 0 && (
             <div className="flex gap-2.5 flex-wrap mb-3">
               {Object.entries(parseResult.result.byCity).map(

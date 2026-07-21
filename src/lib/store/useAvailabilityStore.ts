@@ -23,6 +23,13 @@ export interface ImportedProject {
 export interface ImportSummary {
   totalImported: number
   totalSkipped: number
+  skippedReasons?: {
+    noProject: number
+    noCityMatch: number
+    noPropertyTypeMatch: number
+    noUnitNumber: number
+    noUnitType: number
+  }
 }
 
 interface ParseResultData {

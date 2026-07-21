@@ -624,7 +624,7 @@ export default function UnitTypeEditor({
 
       {/* Details */}
       {tab === "details" && (
-        <Card padding="p-6">
+        <Card padding="p-2 md:p-6">
           <div className="mb-4">
             <label className="block text-[10px] font-mono text-navy-light tracking-[1.6px] uppercase mb-1.5">
               Unit Type Label
@@ -653,7 +653,7 @@ export default function UnitTypeEditor({
                   className="flex flex-col sm:flex-row gap-2 mb-2.5 items-stretch sm:items-center p-[10px_14px] bg-surface rounded-[6px] border border-border"
                 >
                   <input
-                    className="flex-1 h-[44px] sm:h-[38px] px-3 rounded-[6px] border border-border text-[13px] text-navy bg-white outline-none focus:border-blue w-full"
+                    className="flex-1 min-h-[36px] lg:min-h-0 lg:h-[38px] px-3 rounded-[6px] border border-border text-[14px] lg:text-[13px] text-navy bg-white outline-none focus:border-blue w-full"
                     value={st}
                     placeholder={`Sub Type ${String.fromCharCode(65 + i)}`}
                     onChange={(e) => {
@@ -865,8 +865,8 @@ export default function UnitTypeEditor({
 
       {/* Payment Plans */}
       {tab === "plans" && (
-        <Card padding="p-6">
-          <div className="text-[10px] font-mono text-navy-light tracking-[1.5px] uppercase mb-1">
+        <Card padding="p-2 md:p-6">
+          <div className="text-[10px] font-mono text-navy-light tracking-[1.5px] uppercase mt-1 md:mb-1">
             Payment Plans for {(ut.label || "this unit type").toUpperCase()}
           </div>
           <div className="text-[12px] text-navy-dim mb-3">
@@ -976,13 +976,13 @@ export default function UnitTypeEditor({
           <div className="text-[12px] text-navy-dim mb-2">
             Floor plans are uploaded per sub-type in the Details tab above.
           </div>
-          <div className="flex flex-wrap gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {Object.entries(ut.floorPlans || {})
               .filter(([, fp]) => fp)
               .map(([k, fp]) => (
                 <div
                   key={k}
-                  className="flex flex-col gap-2 p-3 bg-[rgba(30,111,217,0.04)] border border-[rgba(30,111,217,0.15)] rounded-[8px] w-[200px]"
+                  className="flex flex-col gap-2 p-3 bg-[rgba(30,111,217,0.04)] border border-[rgba(30,111,217,0.15)] rounded-[8px]"
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-[12px] font-bold text-navy">{k}</span>
