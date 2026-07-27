@@ -354,6 +354,7 @@ export default function UnitTypeEditor({
             "reportage_active_editing_unittype_id",
             mapped.id,
           );
+          toast.success("Unit Type created successfully!");
         }
       } catch (err: any) {
         const msg =
@@ -365,20 +366,166 @@ export default function UnitTypeEditor({
       }
     } else if (isBackendProject && !isNewUT) {
       try {
-        const subtypesPayload = (ut.subtypes || [])
-          .map((label, index) => {
-            const id = subtypeIdsByIndex[index];
-            return id ? { id, label } : { label };
-          })
-          .filter((x) => x.label);
+        if (tab === "details") {
+          const subtypesPayload = (ut.subtypes || [])
+            .map((label, index) => {
+              const id = subtypeIdsByIndex[index];
+              return id ? { id, label } : { label };
+            })
+            .filter((x) => x.label);
 
-        const hasFiles = Object.values(ut.floorPlans || {}).some(
-          (fp) => fp.file,
-        );
+          const hasFiles = Object.values(ut.floorPlans || {}).some(
+            (fp) => fp.file,
+          );
 
-        let subtypesResPromise;
+          let subtypesResPromise;
 
-        if (hasFiles) {
+          if (hasFiles) {
+            const formData = new FormData();
+            (ut.subtypes || []).forEach((label, index) => {
+              if (label) {
+                const id = subtypeIdsByIndex[index];
+                if (id) {
+                  formData.append(`subtypes[${index}][id]`, id);
+                }
+                formData.append(`subtypes[${index}][label]`, label);
+                const fp = ut.floorPlans?.[label];
+                if (fp?.file) {
+                  formData.append(
+                    `subtypes[${index}][floorPlan]`,
+                    fp.file,
+                    fp.name,
+                  );
+                }
+              }
+            });
+
+            subtypesResPromise = apiClient.put<{
+              success: boolean;
+              data: {
+                subtypes: any[];
+              };
+            }>(`projects/${projectId}/unit-types/${ut.id}/subtypes`, formData, {
+              headers: { "Content-Type": "multipart/form-data" },
+            });
+          } else {
+            subtypesResPromise = apiClient.put<{
+              success: boolean;
+              data: {
+                subtypes: any[];
+              };
+            }>(`projects/${projectId}/unit-types/${ut.id}/subtypes`, {
+              subtypes: subtypesPayload,
+            });
+          }
+
+          const [utRes, subtypesRes] = await Promise.all([
+            apiClient.put<{
+              success: boolean;
+              data: {
+                unitType: any;
+              };
+            }>(`projects/${projectId}/unit-types/${ut.id}`, {
+              label: ut.label,
+              virtualTour: ut.virtualTour || "",
+            }),
+            subtypesResPromise,
+          ]);
+
+          if (utRes.data.success && subtypesRes.data.success) {
+            const backendUt = utRes.data.data.unitType;
+            const updatedSubtypes = subtypesRes.data.data.subtypes;
+
+            const newIds = updatedSubtypes.map((st: any) => st.id);
+            setSubtypeIdsByIndex(newIds);
+
+            const subtypesList = updatedSubtypes.map((st: any) => st.label);
+
+            const floorPlansMap: Record<string, FloorPlan> = { ...(ut.floorPlans || {}) };
+            const getFileUrl = (path: string) => {
+              if (path && !path.startsWith("http")) {
+                let backendRoot = (
+                  import.meta.env.VITE_API_BASE_URL ||
+                  "http://localhost:3001/api/"
+                ).replace(/\/api\/?$/, "");
+                if (backendRoot.endsWith("/")) {
+                  backendRoot = backendRoot.slice(0, -1);
+                }
+                let relativePath = path;
+                if (relativePath.startsWith("/")) {
+                  relativePath = relativePath.slice(1);
+                }
+                return `${backendRoot}/${relativePath}`;
+              }
+              return path;
+            };
+            updatedSubtypes.forEach((st: any) => {
+              if (st.floorPlanPath) {
+                floorPlansMap[st.label] = {
+                  name: st.floorPlanName || `${st.label} Floor Plan`,
+                  dataUrl: getFileUrl(st.floorPlanPath) || "",
+                  isImage:
+                    st.floorPlanIsImage !== null ? !!st.floorPlanIsImage : true,
+                };
+              }
+            });
+
+            currentUt = {
+              ...currentUt,
+              label: backendUt.label,
+              virtualTour: backendUt.virtualTour || "",
+              subtypes: subtypesList,
+              floorPlans: floorPlansMap,
+            };
+            setUt(currentUt);
+            toast.success("Sub Types saved successfully!");
+          }
+        } else if (tab === "plans") {
+          const plansPayload = (ut.paymentPlans || []).map((p) => ({
+            label: p.label || "Unnamed Plan",
+            dp: Number(p.dp) || 0,
+            installmentPct: Number(p.installmentPct) || 0,
+            durationType: p.durationType || "till_handover",
+            durationMonths:
+              p.durationMonths !== null && p.durationMonths !== undefined
+                ? Number(p.durationMonths)
+                : null,
+            discount: Number(p.discount) || 0,
+            planType: p.planType || "normal",
+            eventName: p.eventName || null,
+            eventDiscount:
+              p.eventDiscount !== null && p.eventDiscount !== undefined
+                ? Number(p.eventDiscount)
+                : null,
+            eventInstallmentPct:
+              p.eventInstallmentPct !== null &&
+              p.eventInstallmentPct !== undefined
+                ? Number(p.eventInstallmentPct)
+                : null,
+            eventDurationType: p.eventDurationType || "till_handover",
+            eventDurationMonths:
+              p.eventDurationMonths !== null &&
+              p.eventDurationMonths !== undefined
+                ? Number(p.eventDurationMonths)
+                : null,
+          }));
+
+          const plansResponse = await apiClient.post<{
+            success: boolean;
+            data: { plans: any[] };
+          }>(`projects/${projectId}/unit-types/${ut.id}/payment-plans`, {
+            plans: plansPayload,
+          });
+
+          if (plansResponse.data.success) {
+            currentUt = {
+              ...currentUt,
+              paymentPlans: plansResponse.data.data.plans,
+            };
+            setUt(currentUt);
+            toast.success("Payment Plans saved successfully!");
+          }
+        } else if (tab === "files") {
           const formData = new FormData();
           (ut.subtypes || []).forEach((label, index) => {
             if (label) {
@@ -398,7 +545,7 @@ export default function UnitTypeEditor({
             }
           });
 
-          subtypesResPromise = apiClient.put<{
+          const subtypesRes = await apiClient.put<{
             success: boolean;
             data: {
               subtypes: any[];
@@ -406,121 +553,48 @@ export default function UnitTypeEditor({
           }>(`projects/${projectId}/unit-types/${ut.id}/subtypes`, formData, {
             headers: { "Content-Type": "multipart/form-data" },
           });
-        } else {
-          subtypesResPromise = apiClient.put<{
-            success: boolean;
-            data: {
-              subtypes: any[];
-            };
-          }>(`projects/${projectId}/unit-types/${ut.id}/subtypes`, {
-            subtypes: subtypesPayload,
-          });
-        }
 
-        const [utRes, subtypesRes] = await Promise.all([
-          apiClient.put<{
-            success: boolean;
-            data: {
-              unitType: any;
-            };
-          }>(`projects/${projectId}/unit-types/${ut.id}`, {
-            label: ut.label,
-            virtualTour: ut.virtualTour || "",
-          }),
-          subtypesResPromise,
-        ]);
+          if (subtypesRes.data.success) {
+            const updatedSubtypes = subtypesRes.data.data.subtypes;
+            const newIds = updatedSubtypes.map((st: any) => st.id);
+            setSubtypeIdsByIndex(newIds);
 
-        if (utRes.data.success && subtypesRes.data.success) {
-          const backendUt = utRes.data.data.unitType;
-          const updatedSubtypes = subtypesRes.data.data.subtypes;
-
-          const newIds = updatedSubtypes.map((st: any) => st.id);
-          setSubtypeIdsByIndex(newIds);
-
-          const subtypesList = updatedSubtypes.map((st: any) => st.label);
-
-          const floorPlansMap: Record<string, FloorPlan> = {};
-          const getFileUrl = (path: string) => {
-            if (path && !path.startsWith("http")) {
-              let backendRoot = (
-                import.meta.env.VITE_API_BASE_URL ||
-                "http://localhost:3001/api/"
-              ).replace(/\/api\/?$/, "");
-              if (backendRoot.endsWith("/")) {
-                backendRoot = backendRoot.slice(0, -1);
+            const floorPlansMap: Record<string, FloorPlan> = {};
+            const getFileUrl = (path: string) => {
+              if (path && !path.startsWith("http")) {
+                let backendRoot = (
+                  import.meta.env.VITE_API_BASE_URL ||
+                  "http://localhost:3001/api/"
+                ).replace(/\/api\/?$/, "");
+                if (backendRoot.endsWith("/")) {
+                  backendRoot = backendRoot.slice(0, -1);
+                }
+                let relativePath = path;
+                if (relativePath.startsWith("/")) {
+                  relativePath = relativePath.slice(1);
+                }
+                return `${backendRoot}/${relativePath}`;
               }
-              let relativePath = path;
-              if (relativePath.startsWith("/")) {
-                relativePath = relativePath.slice(1);
+              return path;
+            };
+            updatedSubtypes.forEach((st: any) => {
+              if (st.floorPlanPath) {
+                floorPlansMap[st.label] = {
+                  name: st.floorPlanName || `${st.label} Floor Plan`,
+                  dataUrl: getFileUrl(st.floorPlanPath) || "",
+                  isImage:
+                    st.floorPlanIsImage !== null ? !!st.floorPlanIsImage : true,
+                };
               }
-              return `${backendRoot}/${relativePath}`;
-            }
-            return path;
-          };
-          updatedSubtypes.forEach((st: any) => {
-            if (st.floorPlanPath) {
-              floorPlansMap[st.label] = {
-                name: st.floorPlanName || `${st.label} Floor Plan`,
-                dataUrl: getFileUrl(st.floorPlanPath) || "",
-                isImage:
-                  st.floorPlanIsImage !== null ? !!st.floorPlanIsImage : true,
-              };
-            }
-          });
-
-          let finalPlans = ut.paymentPlans || [];
-
-          if (tab === "plans" || tab === "files") {
-            const plansPayload = (ut.paymentPlans || []).map((p) => ({
-              label: p.label || "Unnamed Plan",
-              dp: Number(p.dp) || 0,
-              installmentPct: Number(p.installmentPct) || 0,
-              durationType: p.durationType || "till_handover",
-              durationMonths:
-                p.durationMonths !== null && p.durationMonths !== undefined
-                  ? Number(p.durationMonths)
-                  : null,
-              discount: Number(p.discount) || 0,
-              planType: p.planType || "normal",
-              eventName: p.eventName || null,
-              eventDiscount:
-                p.eventDiscount !== null && p.eventDiscount !== undefined
-                  ? Number(p.eventDiscount)
-                  : null,
-              eventInstallmentPct:
-                p.eventInstallmentPct !== null &&
-                p.eventInstallmentPct !== undefined
-                  ? Number(p.eventInstallmentPct)
-                  : null,
-              eventDurationType: p.eventDurationType || "till_handover",
-              eventDurationMonths:
-                p.eventDurationMonths !== null &&
-                p.eventDurationMonths !== undefined
-                  ? Number(p.eventDurationMonths)
-                  : null,
-            }));
-
-            const plansResponse = await apiClient.post<{
-              success: boolean;
-              data: { plans: any[] };
-            }>(`projects/${projectId}/unit-types/${ut.id}/payment-plans`, {
-              plans: plansPayload,
             });
 
-            if (plansResponse.data.success) {
-              finalPlans = plansResponse.data.data.plans;
-            }
+            currentUt = {
+              ...currentUt,
+              floorPlans: floorPlansMap,
+            };
+            setUt(currentUt);
+            toast.success("Floor Plans saved successfully!");
           }
-
-          currentUt = {
-            ...currentUt,
-            label: backendUt.label,
-            virtualTour: backendUt.virtualTour || "",
-            subtypes: subtypesList,
-            floorPlans: floorPlansMap,
-            paymentPlans: finalPlans,
-          };
-          setUt(currentUt);
         }
       } catch (err: any) {
         const msg =
@@ -572,6 +646,17 @@ export default function UnitTypeEditor({
     u("floorPlans", fp);
   };
 
+  const isNewUT = !ut.id || ut.id.startsWith("ut_");
+  const hasDetails = !!ut.label?.trim();
+  const hasPlans = (ut.paymentPlans || []).length > 0;
+
+  const isTabEnabled = (key: TabKey) => {
+    if (key === "details") return true;
+    if (key === "plans") return !isNewUT && hasDetails;
+    if (key === "files") return !isNewUT && hasDetails && hasPlans;
+    return false;
+  };
+
   const tabs: { key: TabKey; label: string }[] = [
     { key: "details", label: "1 Details" },
     { key: "plans", label: "2 Payment Plans" },
@@ -601,25 +686,40 @@ export default function UnitTypeEditor({
       />
 
       <div className="flex gap-1 bg-surface border border-border rounded-[6px] p-1 mb-6 overflow-x-auto scrollbar-none whitespace-nowrap">
-        {tabs.map((t) => (
-          <div
-            key={t.key}
-            className="flex-1 text-center py-2.5 px-1 rounded-[6px] text-xs whitespace-nowrap"
-            style={{
-              background: tab === t.key ? getRgbaColor(pc, 0.12) : "#fff",
-              color: tab === t.key ? pc : "#4A5880",
-              fontWeight: tab === t.key ? 600 : 400,
-              borderBottom:
-                tab === t.key ? `2px solid ${pc}` : "2px solid transparent",
-              boxShadow: tab === t.key ? "0 2px 6px rgba(0,0,0,0.08)" : "none",
-            }}
-          >
-            {t.label.split(" ")[0]}{" "}
-            <span className={tab === t.key ? "inline" : "hidden sm:inline"}>
-              {t.label.split(" ").slice(1).join(" ")}
-            </span>
-          </div>
-        ))}
+        {tabs.map((t) => {
+          const enabled = isTabEnabled(t.key);
+          const active = tab === t.key;
+          return (
+            <div
+              key={t.key}
+              onClick={() => {
+                if (enabled) {
+                  setTab(t.key);
+                }
+              }}
+              className={`flex-1 text-center py-2.5 px-1 rounded-[6px] text-xs whitespace-nowrap transition-all ${
+                active
+                  ? ""
+                  : enabled
+                    ? "cursor-pointer hover:bg-slate-50"
+                    : "cursor-not-allowed opacity-50"
+              }`}
+              style={{
+                background: active ? getRgbaColor(pc, 0.12) : "#fff",
+                color: active ? pc : enabled ? "#4A5880" : "#94a3b8",
+                fontWeight: active ? 600 : 400,
+                borderBottom:
+                  active ? `2px solid ${pc}` : "2px solid transparent",
+                boxShadow: active ? "0 2px 6px rgba(0,0,0,0.08)" : "none",
+              }}
+            >
+              {t.label.split(" ")[0]}{" "}
+              <span className={active ? "inline" : "hidden sm:inline"}>
+                {t.label.split(" ").slice(1).join(" ")}
+              </span>
+            </div>
+          );
+        })}
       </div>
 
       {/* Details */}
@@ -1033,7 +1133,11 @@ export default function UnitTypeEditor({
             onClick={() => handleSave(false)}
             className="h-[38px] px-4 rounded-[6px] text-sm font-semibold cursor-pointer text-white bg-linear-to-r from-green to-[#2ECC8A] w-full sm:w-auto text-center"
           >
-            Save Unit Type
+            {tab === "details"
+              ? "Save Sub Types"
+              : tab === "plans"
+                ? "Save Payment Plans"
+                : "Save Floor Plans"}
           </button>
           {tab === "details" && (
             <button

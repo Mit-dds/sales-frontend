@@ -113,7 +113,7 @@ describe('buildRecoverySchedule', () => {
     expect(total).toBe(Math.round(result!.netPrice))
   })
 
-  it('recovery does not include current months deferred', () => {
+  it('recovery includes current months deferred', () => {
     const today = new Date()
     vi.useFakeTimers()
     vi.setSystemTime(today)
@@ -133,6 +133,6 @@ describe('buildRecoverySchedule', () => {
     expect(result).not.toBeNull()
     const recovery6 = result!.rows.find((r) => r.label === 'Recovery 6')
     expect(recovery6).toBeDefined()
-    expect(recovery6!.amount).toBe(34428)
+    expect(recovery6!.amount).toBe(40166)
   })
 })

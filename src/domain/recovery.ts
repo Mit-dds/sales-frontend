@@ -81,14 +81,13 @@ export function buildRecoverySchedule(input: RecoveryScheduleInput): RecoverySch
     } else {
       const isScheduledRecovery = (rm + 1) % freq === 0
 
-      // BUG FIX: check recovery BEFORE adding deferredPerMonth
-      // Recovery collects deferred from PREVIOUS months only, not the current month
-      // Forced catch-up takes priority over scheduled recovery
+      // Recovery collects deferred from the entire cycle (previous months + current month)
+      // to match: recovery = reducedPct + (originalPct - reducedPct) * freq
       if (isLastRecoveryMonth && accumulated > 0) {
-        rows.push({ label: `Recovery ${rm + 1} (Catch-up)`, date: instDate, amount: Math.round(netPrice * reducedPct / 100) + accumulated, type: 'recovery' })
+        rows.push({ label: `Recovery ${rm + 1} (Catch-up)`, date: instDate, amount: Math.round(netPrice * reducedPct / 100) + accumulated + deferredPerMonth, type: 'recovery' })
         accumulated = 0
       } else if (isScheduledRecovery) {
-        rows.push({ label: `Recovery ${rm + 1}`, date: instDate, amount: Math.round(netPrice * reducedPct / 100) + accumulated, type: 'recovery' })
+        rows.push({ label: `Recovery ${rm + 1}`, date: instDate, amount: Math.round(netPrice * reducedPct / 100) + accumulated + deferredPerMonth, type: 'recovery' })
         accumulated = 0
       } else {
         rows.push({ label: `Installment ${rm + 1}`, date: instDate, amount: Math.round(netPrice * reducedPct / 100), type: 'installment' })

@@ -260,6 +260,17 @@ export default function ProjectForm({
   };
   const stepIdx = STEPS.findIndex((s) => s.key === tab);
 
+  const hasBasics = !!p.name?.trim();
+  const hasUnitTypes = (p.unitTypes || []).length > 0;
+
+  const isStepEnabled = (key: StepKey) => {
+    if (key === "basics") return true;
+    if (key === "unittypes") return !isNew && hasBasics;
+    if (key === "masterplan") return !isNew && hasBasics && hasUnitTypes;
+    if (key === "why") return !isNew && hasBasics && hasUnitTypes;
+    return false;
+  };
+
   const u = (k: keyof Project, v: unknown) =>
     setP((prev) => ({ ...prev, [k]: v as never }));
 
@@ -579,7 +590,18 @@ export default function ProjectForm({
               i < STEPS.length - 1 ? "flex-1 min-w-0" : "shrink-0"
             }`}
           >
-            <div className="relative flex items-center gap-2 shrink-0">
+            <div
+              onClick={() => {
+                if (isStepEnabled(s.key)) {
+                  setTab(s.key);
+                }
+              }}
+              className={`relative flex items-center gap-2 shrink-0 transition-all ${
+                isStepEnabled(s.key)
+                  ? "cursor-pointer hover:opacity-80"
+                  : "cursor-not-allowed opacity-50"
+              }`}
+            >
               <div
                 className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
                 style={{

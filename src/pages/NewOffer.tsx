@@ -8,6 +8,33 @@ import { getHandoverMonths, fmtDate } from "@/domain/dates";
 import { buildSchedule } from "@/domain/schedule";
 import { buildRecoverySchedule } from "@/domain/recovery";
 import { calcParking } from "@/domain/fees";
+
+const watermarkToDataUrl = async (path: string | null): Promise<string | null> => {
+  if (!path) return null;
+  if (path.startsWith("data:")) return path;
+  const url = path.startsWith("http")
+    ? path
+    : (() => {
+        const normalized = path.replace(/\\/g, "/");
+        const idx = normalized.indexOf("uploads/");
+        if (idx === -1) return path;
+        const rel = normalized.substring(idx);
+        const root = (import.meta.env.VITE_API_BASE_URL || "http://localhost:3001/api/").replace(/\/api\/?$/, "");
+        return `${root.endsWith("/") ? root.slice(0, -1) : root}/${rel}`;
+      })();
+  try {
+    const resp = await fetch(url);
+    const blob = await resp.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch {
+    return null;
+  }
+};
 import {
   UTILITY,
   EXTRA_CURRENCIES,
@@ -738,6 +765,10 @@ export default function NewOffer() {
 
     const floorPlan = resolveFloorPlan(proj, unit, resolvedUT);
 
+    const watermark = await watermarkToDataUrl(
+      (user as Record<string, string | null> | null)?.watermark || null,
+    );
+
     const offerData = {
       clientName: client,
       agentName: agentToggles.showAgentName ? user?.name : "",
@@ -749,8 +780,7 @@ export default function NewOffer() {
           user?.email ||
           ""
         : "",
-      watermark:
-        (user as Record<string, string | null> | null)?.watermark || null,
+      watermark,
       offerDate: new Date().toISOString().split("T")[0],
       netPrice,
       discountAmt,
@@ -870,6 +900,10 @@ export default function NewOffer() {
       };
     });
 
+    const watermark = await watermarkToDataUrl(
+      (user as Record<string, string | null> | null)?.watermark || null,
+    );
+
     const offerData = {
       clientName: client,
       agentName: agentToggles.showAgentName ? user?.name : "",
@@ -896,8 +930,7 @@ export default function NewOffer() {
         masterPlan: proj.masterPlan,
       },
       offers: allOffers,
-      watermark:
-        (user as Record<string, string | null> | null)?.watermark || null,
+      watermark,
       offerDate: today.toISOString().split("T")[0],
     };
 
@@ -917,6 +950,14 @@ export default function NewOffer() {
     const today = new Date();
     const resolvedUT =
       proj.unitTypes?.find((t) => t.id === unit.typeId) || unitType || null;
+    const parkingAmtCmp = calcParking(
+      proj,
+      resolvedUT as UnitType,
+    );
+
+    const watermark = await watermarkToDataUrl(
+      (user as Record<string, string | null> | null)?.watermark || null,
+    );
 
     const offerData = {
       clientName: client,
@@ -933,6 +974,9 @@ export default function NewOffer() {
         feePct: proj.feePct,
         feeFixed: proj.feeFixed,
         utilityAmount: proj.utilityAmount,
+        disclaimer: proj.disclaimer,
+        heroImage: proj.heroImage,
+        whyBuy: proj.whyBuy || [],
       },
       offer: {
         isEvent,
@@ -951,14 +995,28 @@ export default function NewOffer() {
       unit: {
         price: unit.price,
         number: unit.number,
+        floor: unit.floor,
+        areaInternal: unit.areaInternal,
+        areaExternal: unit.areaExternal,
+        area: unit.area,
       },
       unitType: resolvedUT
         ? {
-            label: resolvedUT.label,
-          }
+          label: resolvedUT.label,
+          subtype: unit.subtype,
+        }
         : null,
-      watermark:
-        (user as Record<string, string | null> | null)?.watermark || null,
+      parking: parkingAmtCmp,
+      extraCurrency:
+        extraCurrency &&
+        (extraCurrency === "USD" || (liveRate && +liveRate > 0))
+          ? extraCurrency
+          : null,
+      liveRates: {
+        ...ratesFromSettings,
+        [extraCurrency]: effectiveExtraRate,
+      },
+      watermark,
       offerDate: today.toISOString().split("T")[0],
     };
 
@@ -1015,6 +1073,10 @@ export default function NewOffer() {
 
     const floorPlan = resolveFloorPlan(proj, unit, resolvedUT);
 
+    const watermark = await watermarkToDataUrl(
+      (user as Record<string, string | null> | null)?.watermark || null,
+    );
+
     const offerData = {
       clientName: client,
       agentName: agentToggles.showAgentName ? user?.name : "",
@@ -1026,8 +1088,7 @@ export default function NewOffer() {
           user?.email ||
           ""
         : "",
-      watermark:
-        (user as Record<string, string | null> | null)?.watermark || null,
+      watermark,
       offerDate: today.toISOString().split("T")[0],
       netPrice,
       discountAmt,
@@ -3125,7 +3186,7 @@ export function OfferPreview({
                   zIndex: 0,
                 }}
               >
-                {watermark.startsWith("data:") ? (
+                {watermark.startsWith("data:") || watermark.startsWith("http") ? (
                   <img
                     src={watermark}
                     alt=""
@@ -5307,7 +5368,7 @@ function WatermarkPreview({
         zIndex: 0,
       }}
     >
-      {watermark && watermark.startsWith("data:") ? (
+      {watermark && (watermark.startsWith("data:") || watermark.startsWith("http")) ? (
         <img
           src={watermark}
           alt=""

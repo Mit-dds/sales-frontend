@@ -142,13 +142,11 @@ export default function AdminSettings() {
                 {label}
               </div>
               <input
-                className="w-full bg-[#F8FAFF] border border-border rounded-md text-navy px-3.5 py-2.5 text-[13px] outline-none"
+                className="w-full bg-[#f1f5f9] border border-border rounded-md text-navy-dim px-3.5 py-2.5 text-[13px] outline-none cursor-not-allowed"
                 type="number"
                 step="0.001"
                 value={rate(key) || ""}
-                onChange={(e) =>
-                  update(key, +e.target.value as Settings[keyof Settings])
-                }
+                disabled
                 placeholder="0.000"
               />
             </div>

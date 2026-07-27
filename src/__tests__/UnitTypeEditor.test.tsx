@@ -174,7 +174,7 @@ describe("UnitTypeEditor Component", () => {
       />
     );
 
-    const saveBtn = screen.getByRole("button", { name: "Save Unit Type" });
+    const saveBtn = screen.getByRole("button", { name: "Save Sub Types" });
     fireEvent.click(saveBtn);
 
     await waitFor(() => {

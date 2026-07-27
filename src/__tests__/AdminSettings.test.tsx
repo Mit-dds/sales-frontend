@@ -79,10 +79,6 @@ describe("AdminSettings Component", () => {
     const teamInput = screen.getByDisplayValue("Reportage Sales Team");
     fireEvent.change(teamInput, { target: { value: "New Premium Team" } });
 
-    // Modify USD exchange rate
-    const usdInput = screen.getByDisplayValue("0.272");
-    fireEvent.change(usdInput, { target: { value: "0.273" } });
-
     // Save Settings
     const saveBtn = screen.getByRole("button", { name: "Save Settings" });
     fireEvent.click(saveBtn);
@@ -90,11 +86,11 @@ describe("AdminSettings Component", () => {
     await waitFor(() => {
       expect(apiClient.put).toHaveBeenCalledWith("settings", expect.objectContaining({
         teamName: "New Premium Team",
-        usdRate: 0.273,
+        usdRate: 0.272,
       }));
       expect(settingsService.update).toHaveBeenCalledWith(expect.objectContaining({
         teamName: "New Premium Team",
-        usdRate: 0.273,
+        usdRate: 0.272,
       }));
       expect(toast.success).toHaveBeenCalledWith("Settings saved successfully");
     });
