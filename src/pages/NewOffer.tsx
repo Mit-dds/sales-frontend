@@ -1,6 +1,13 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
-import type { Project, Unit, PaymentPlan, UnitType, Settings } from "@/types";
+import type {
+  Project,
+  Unit,
+  PaymentPlan,
+  UnitType,
+  Settings,
+  FloorPlan,
+} from "@/types";
 import { useAuth } from "@/app/providers/AuthProvider";
 import { settingsService } from "@/services/settings.service";
 import { fmtAED, fmtUSD } from "@/domain/currency";
@@ -9,7 +16,9 @@ import { buildSchedule } from "@/domain/schedule";
 import { buildRecoverySchedule } from "@/domain/recovery";
 import { calcParking } from "@/domain/fees";
 
-const watermarkToDataUrl = async (path: string | null): Promise<string | null> => {
+const watermarkToDataUrl = async (
+  path: string | null,
+): Promise<string | null> => {
   if (!path) return null;
   if (path.startsWith("data:")) return path;
   const url = path.startsWith("http")
@@ -19,7 +28,9 @@ const watermarkToDataUrl = async (path: string | null): Promise<string | null> =
         const idx = normalized.indexOf("uploads/");
         if (idx === -1) return path;
         const rel = normalized.substring(idx);
-        const root = (import.meta.env.VITE_API_BASE_URL || "http://localhost:3001/api/").replace(/\/api\/?$/, "");
+        const root = (
+          import.meta.env.VITE_API_BASE_URL || "http://localhost:3001/api/"
+        ).replace(/\/api\/?$/, "");
         return `${root.endsWith("/") ? root.slice(0, -1) : root}/${rel}`;
       })();
   try {
@@ -35,6 +46,36 @@ const watermarkToDataUrl = async (path: string | null): Promise<string | null> =
     return null;
   }
 };
+
+const toDataUrl = async (url: string): Promise<string> => {
+  if (url.startsWith("data:")) return url;
+  try {
+    const resp = await fetch(url);
+    const blob = await resp.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch {
+    return url;
+  }
+};
+
+const ensurePdfDataUrl = async (
+  item: { dataUrl?: string; isImage?: boolean } | null | undefined,
+) => {
+  if (!item || typeof item !== "object" || !item.dataUrl) return null;
+  if (item.isImage || item.dataUrl.startsWith("data:")) return item;
+  try {
+    const dataUrl = await toDataUrl(item.dataUrl);
+    return { ...item, dataUrl };
+  } catch {
+    return item;
+  }
+};
+
 import {
   UTILITY,
   EXTRA_CURRENCIES,
@@ -201,6 +242,12 @@ export default function NewOffer() {
 
   const [fetchedUnits, setFetchedUnits] = useState<Unit[]>([]);
   const [loadingUnits, setLoadingUnits] = useState(false);
+  const [unitsPagination, setUnitsPagination] = useState({
+    page: 1,
+    limit: 20,
+    total: 0,
+    totalPages: 1,
+  });
   const [unitPaymentPlans, setUnitPaymentPlans] = useState<PaymentPlan[]>([]);
   const [loadingPlans, setLoadingPlans] = useState(false);
 
@@ -334,13 +381,15 @@ export default function NewOffer() {
       searchVal?: string,
       typeVal?: string,
       projectObj?: Project | null,
+      page: number = 1,
+      limit: number = 20,
     ) => {
       const activeProj = projectObj || proj;
       if (!projectId) return;
 
       setLoadingUnits(true);
       try {
-        const params: Record<string, string> = {};
+        const params: Record<string, string | number> = {};
         if (searchVal && searchVal.trim()) {
           params.search = searchVal.trim();
         }
@@ -351,6 +400,8 @@ export default function NewOffer() {
             )?.label || typeVal;
           params.unitType = matchedLabel.trim();
         }
+        params.page = page;
+        params.limit = limit;
 
         const res = await apiClient.get<{
           success: boolean;
@@ -360,11 +411,16 @@ export default function NewOffer() {
             unitCount: number;
             unitTypes?: string[];
             units: Array<Record<string, unknown>>;
+            pagination: {
+              page: number;
+              limit: number;
+              total: number;
+              totalPages: number;
+            };
           };
         }>(`availability/${projectId}/units`, { params });
 
         if (res.data?.success && Array.isArray(res.data.data?.units)) {
-          // Map API fields to frontend Unit type
           const uList: Unit[] = res.data.data.units.map((raw) => ({
             id: raw.id as string,
             number: raw.number as string,
@@ -382,6 +438,10 @@ export default function NewOffer() {
             createdBy: (raw.createdBy as string) || undefined,
           }));
           setFetchedUnits(uList);
+
+          if (res.data.data.pagination) {
+            setUnitsPagination(res.data.data.pagination);
+          }
 
           // Restore unit if cached unit ID is present
           if (restoredUnitId) {
@@ -455,13 +515,53 @@ export default function NewOffer() {
       }>(`projects/${p.id}`);
 
       if (res.data?.success && res.data.data?.project) {
-        const fullProj = res.data.data.project;
+        const rawProj = res.data.data.project as any;
+        // Map backend unitTypes.subtypes into floorPlans format expected by resolveFloorPlan
+        let backendRoot = (
+          import.meta.env.VITE_API_BASE_URL || "http://localhost:3001/api/"
+        ).replace(/\/api\/?$/, "");
+        if (backendRoot.endsWith("/")) backendRoot = backendRoot.slice(0, -1);
+        const mappedUnitTypes = (rawProj.unitTypes || []).map((ut: any) => {
+          const floorPlansMap: Record<string, FloorPlan> = {};
+          (ut.subtypes || []).forEach((st: any) => {
+            if (st.floorPlanPath) {
+              const relativePath = String(st.floorPlanPath);
+              const fullUrl = relativePath.startsWith("http")
+                ? relativePath
+                : `${backendRoot}${relativePath.startsWith("/") ? "" : "/"}${relativePath}`;
+              floorPlansMap[st.label] = {
+                name: st.floorPlanName || `${st.label} Floor Plan`,
+                dataUrl: fullUrl,
+                isImage:
+                  st.floorPlanIsImage !== null ? !!st.floorPlanIsImage : true,
+              };
+            }
+          });
+          return { ...ut, floorPlans: floorPlansMap };
+        });
+        const fullProj = { ...rawProj, unitTypes: mappedUnitTypes } as Project;
+        // Map masterPlan from DB fields
+        if (!fullProj.masterPlan && rawProj.masterPlanPath) {
+          const mpRelativePath = String(rawProj.masterPlanPath);
+          const mpUrl = mpRelativePath.startsWith("http")
+            ? mpRelativePath
+            : `${backendRoot}${mpRelativePath.startsWith("/") ? "" : "/"}${mpRelativePath}`;
+          (fullProj as any).masterPlan = {
+            name: rawProj.masterPlanName || "Master Plan",
+            dataUrl: mpUrl,
+            isImage:
+              rawProj.masterPlanIsImage !== null
+                ? !!rawProj.masterPlanIsImage
+                : true,
+          };
+        }
         setProj(fullProj);
         setSplit(fullProj.dpSplitOptions?.[0] || 1);
         setStep(2);
         setUnit(null);
         setPlan(null);
         setFetchedUnits([]);
+        setUnitsPagination({ page: 1, limit: 20, total: 0, totalPages: 1 });
         setUnitPaymentPlans([]);
         fetchUnitsForProject(fullProj.id, "", "", fullProj);
         // toast.success("Loaded project details!", { id: "proj-details" });
@@ -485,11 +585,52 @@ export default function NewOffer() {
     fetchPlansForUnit(proj!.id, u.id);
   };
 
+  // Step navigation handler
+  const handleGoToStep = (targetStep: number) => {
+    if (targetStep < step) {
+      if (targetStep === 1) {
+        setProj(null);
+        setUnit(null);
+        setPlan(null);
+        setFetchedUnits([]);
+        setUnitsPagination({
+          page: 1,
+          limit: 20,
+          total: 0,
+          totalPages: 1,
+        });
+        setUnitPaymentPlans([]);
+        setRecoverySchedule(null);
+        setRecoveryMonthlyPct("");
+        setRecoveryBaseId("");
+      } else if (targetStep === 2) {
+        setUnit(null);
+        setPlan(null);
+        setRecoverySchedule(null);
+        setRecoveryMonthlyPct("");
+        setRecoveryBaseId("");
+      } else if (targetStep === 3) {
+        setPlan(null);
+        setRecoverySchedule(null);
+        setRecoveryMonthlyPct("");
+        setRecoveryBaseId("");
+      }
+      setStep(targetStep);
+    }
+  };
+
   // Unit search and type filter effects
   useEffect(() => {
     if (step === 2 && proj) {
       const timer = setTimeout(() => {
-        fetchUnitsForProject(proj.id, unitSearch, unitTypeFilter, proj);
+        fetchUnitsForProject(
+          proj.id,
+          unitSearch,
+          unitTypeFilter,
+          proj,
+          1,
+          unitsPagination.limit,
+        );
       }, 300);
       return () => clearTimeout(timer);
     }
@@ -692,6 +833,18 @@ export default function NewOffer() {
     const unitSub = unitObj.subtype || "";
     const normSub = (s: string) =>
       (s || "").toLowerCase().replace(/[\s_-]/g, "");
+
+    console.log("[FP-RESOLVE] START", {
+      projectId: projectObj.id,
+      projectName: projectObj.name,
+      unitTypeId: utObj?.id,
+      unitTypeLabel: utObj?.label,
+      subtype: unitSub,
+      unitTypeFpKeys: Object.keys(utFps),
+      projectFpKeys: Object.keys(projectObj.floorPlans || {}),
+    });
+
+    // Step 1: Try to match from unitType.floorPlans by subtype label
     const k =
       Object.keys(utFps).find(
         (kk) =>
@@ -699,14 +852,57 @@ export default function NewOffer() {
           normSub(unitSub).includes(normSub(kk)),
       ) || Object.keys(utFps).find((kk) => utFps[kk]);
     const fpData = k ? utFps[k] : null;
-    if (!fpData) {
-      const projFps = projectObj.floorPlans || {};
-      const pk =
-        Object.keys(projFps).find((key) => key === utObj?.id) ||
-        Object.values(projFps).find(Boolean);
-      return pk || null;
+
+    if (fpData && typeof fpData === "object" && fpData.dataUrl) {
+      console.log("[FP-RESOLVE] MATCH from unitType.floorPlans", {
+        matchedKey: k,
+        name: fpData.name,
+        dataUrl: fpData.dataUrl?.substring(0, 80),
+      });
+      return fpData;
     }
-    return fpData;
+
+    // Step 2: Try to match from project.floorPlans by subtype label
+    // proj.floorPlans keys are subtype labels (e.g. "Type A", "Type B")
+    // NOT unit type IDs
+    const projFps = projectObj.floorPlans || {};
+    if (unitSub && projFps[unitSub]) {
+      const projFp = projFps[unitSub];
+      if (typeof projFp === "object" && projFp.dataUrl) {
+        console.log("[FP-RESOLVE] MATCH from project.floorPlans by subtype", {
+          matchedKey: unitSub,
+          name: projFp.name,
+          dataUrl: projFp.dataUrl?.substring(0, 80),
+        });
+        return projFp;
+      }
+    }
+
+    // Step 3: Try fuzzy match from project.floorPlans
+    const projMatchKey = Object.keys(projFps).find(
+      (kk) =>
+        normSub(kk) === normSub(unitSub) ||
+        normSub(unitSub).includes(normSub(kk)),
+    );
+    if (
+      projMatchKey &&
+      typeof projFps[projMatchKey] === "object" &&
+      projFps[projMatchKey].dataUrl
+    ) {
+      console.log("[FP-RESOLVE] FUZZY match from project.floorPlans", {
+        matchedKey: projMatchKey,
+        name: projFps[projMatchKey].name,
+        dataUrl: projFps[projMatchKey].dataUrl?.substring(0, 80),
+      });
+      return projFps[projMatchKey];
+    }
+
+    console.log("[FP-RESOLVE] No floor plan found", {
+      unitSub,
+      unitTypeFpKeys: Object.keys(utFps),
+      projectFpKeys: Object.keys(projFps),
+    });
+    return null;
   };
 
   const generateServerPreview = async (
@@ -714,6 +910,21 @@ export default function NewOffer() {
     offerData: any,
     defaultFileName: string,
   ) => {
+    console.log("[PDF-GEN] Sending to backend", {
+      template,
+      projectId: offerData.project?.id,
+      projectName: offerData.project?.name,
+      unitTypeId: offerData.unitType?.id,
+      unitTypeLabel: offerData.unitType?.label,
+      subtype: offerData.unit?.subtype,
+      fp: offerData.fp
+        ? {
+            name: offerData.fp.name,
+            dataUrl: offerData.fp.dataUrl?.substring(0, 100),
+            isImage: offerData.fp.isImage,
+          }
+        : null,
+    });
     toast.loading("Generating preview...", { id: "pdf-gen" });
     try {
       const response = await apiClient.post("pdf/preview", {
@@ -764,6 +975,8 @@ export default function NewOffer() {
     );
 
     const floorPlan = resolveFloorPlan(proj, unit, resolvedUT);
+    const fpForOffer = await ensurePdfDataUrl(floorPlan);
+    const mpForOffer = await ensurePdfDataUrl(proj.masterPlan || null);
 
     const watermark = await watermarkToDataUrl(
       (user as Record<string, string | null> | null)?.watermark || null,
@@ -801,6 +1014,7 @@ export default function NewOffer() {
         type: s.type,
       })),
       project: {
+        id: proj.id,
         name: proj.name,
         location: proj.location,
         type: proj.type,
@@ -812,7 +1026,6 @@ export default function NewOffer() {
         disclaimer: proj.disclaimer,
         whyBuy: proj.whyBuy || [],
         heroImage: proj.heroImage,
-        masterPlan: proj.masterPlan,
       },
       unit: {
         number: unit.number,
@@ -824,6 +1037,7 @@ export default function NewOffer() {
       },
       unitType: resolvedUT
         ? {
+            id: resolvedUT.id,
             label: resolvedUT.label,
             virtualTour: resolvedUT.virtualTour,
           }
@@ -836,7 +1050,8 @@ export default function NewOffer() {
         durationMonths: effPlan.durationMonths,
         discount: activeDiscount,
       },
-      fp: floorPlan,
+      fp: fpForOffer,
+      masterPlan: mpForOffer,
     };
 
     await generateServerPreview(
@@ -859,6 +1074,9 @@ export default function NewOffer() {
       proj.utilityAmount ||
       UTILITY[proj.type === "Townhouses" ? "Townhouses" : "Apartments"];
     const parkingAmt = calcParking(proj, resolvedUT as UnitType);
+    const floorPlan = resolveFloorPlan(proj, unit, resolvedUT);
+    const fpForOffer = await ensurePdfDataUrl(floorPlan);
+    const mpForOffer = await ensurePdfDataUrl(proj.masterPlan || null);
     const allOffers = plansToUse.map((p) => {
       const effDisc =
         (isEvent && p.eventDiscount ? p.eventDiscount : p.discount) +
@@ -901,7 +1119,8 @@ export default function NewOffer() {
     });
 
     const watermark = await watermarkToDataUrl(
-      (user as Record<string, string | null> | null)?.watermark || null,
+      (user as Record<string, string | null | undefined> | null)?.watermark ||
+        null,
     );
 
     const offerData = {
@@ -916,6 +1135,7 @@ export default function NewOffer() {
           ""
         : "",
       project: {
+        id: proj.id,
         name: proj.name,
         location: proj.location,
         type: proj.type,
@@ -927,10 +1147,21 @@ export default function NewOffer() {
         disclaimer: proj.disclaimer,
         whyBuy: proj.whyBuy || [],
         heroImage: proj.heroImage,
-        masterPlan: proj.masterPlan,
       },
       offers: allOffers,
       watermark,
+      fp: fpForOffer,
+      masterPlan: mpForOffer,
+      unit: {
+        subtype: unit.subtype,
+      },
+      unitType: resolvedUT
+        ? {
+            id: resolvedUT.id,
+            label: resolvedUT.label,
+            virtualTour: resolvedUT.virtualTour,
+          }
+        : null,
       offerDate: today.toISOString().split("T")[0],
     };
 
@@ -950,10 +1181,10 @@ export default function NewOffer() {
     const today = new Date();
     const resolvedUT =
       proj.unitTypes?.find((t) => t.id === unit.typeId) || unitType || null;
-    const parkingAmtCmp = calcParking(
-      proj,
-      resolvedUT as UnitType,
-    );
+    const parkingAmtCmp = calcParking(proj, resolvedUT as UnitType);
+    const floorPlan = resolveFloorPlan(proj, unit, resolvedUT);
+    const fpForOffer = await ensurePdfDataUrl(floorPlan);
+    const mpForOffer = await ensurePdfDataUrl(proj.masterPlan || null);
 
     const watermark = await watermarkToDataUrl(
       (user as Record<string, string | null> | null)?.watermark || null,
@@ -963,6 +1194,7 @@ export default function NewOffer() {
       clientName: client,
       agentName: agentToggles.showAgentName ? user?.name : "",
       project: {
+        id: proj.id,
         name: proj.name,
         location: proj.location,
         type: proj.type,
@@ -999,13 +1231,18 @@ export default function NewOffer() {
         areaInternal: unit.areaInternal,
         areaExternal: unit.areaExternal,
         area: unit.area,
+        subtype: unit.subtype,
       },
       unitType: resolvedUT
         ? {
-          label: resolvedUT.label,
-          subtype: unit.subtype,
-        }
+            id: resolvedUT.id,
+            label: resolvedUT.label,
+            subtype: unit.subtype,
+            virtualTour: resolvedUT.virtualTour,
+          }
         : null,
+      fp: fpForOffer,
+      masterPlan: mpForOffer,
       parking: parkingAmtCmp,
       extraCurrency:
         extraCurrency &&
@@ -1072,6 +1309,8 @@ export default function NewOffer() {
     const parkingAmt = calcParking(proj, resolvedUT as UnitType);
 
     const floorPlan = resolveFloorPlan(proj, unit, resolvedUT);
+    const fpForOffer = await ensurePdfDataUrl(floorPlan);
+    const mpForOffer = await ensurePdfDataUrl(proj.masterPlan || null);
 
     const watermark = await watermarkToDataUrl(
       (user as Record<string, string | null> | null)?.watermark || null,
@@ -1112,6 +1351,7 @@ export default function NewOffer() {
         type: s.type,
       })),
       project: {
+        id: proj.id,
         name: proj.name,
         location: proj.location,
         type: proj.type,
@@ -1123,7 +1363,6 @@ export default function NewOffer() {
         disclaimer: proj.disclaimer,
         whyBuy: proj.whyBuy || [],
         heroImage: proj.heroImage,
-        masterPlan: proj.masterPlan,
       },
       unit: {
         number: unit.number,
@@ -1135,6 +1374,7 @@ export default function NewOffer() {
       },
       unitType: resolvedUT
         ? {
+            id: resolvedUT.id,
             label: resolvedUT.label,
             virtualTour: resolvedUT.virtualTour,
           }
@@ -1148,7 +1388,8 @@ export default function NewOffer() {
         discount: (bp.discount || 0) + (extraDiscount || 0),
         label: `${bp.label} (Recovery ${freshResult ? freshResult.reducedPct : recoverySchedule?.reducedPct || 0}%/mo + ${freshResult ? freshResult.freq : recoverySchedule?.freq || 6}mo recovery)`,
       },
-      fp: floorPlan,
+      fp: fpForOffer,
+      masterPlan: mpForOffer,
     };
 
     await generateServerPreview(
@@ -1283,6 +1524,7 @@ export default function NewOffer() {
     setRecoveryFreq(6);
     setRecoverySchedule(null);
     setFetchedUnits([]);
+    setUnitsPagination({ page: 1, limit: 20, total: 0, totalPages: 1 });
     setUnitPaymentPlans([]);
     setStep(1);
 
@@ -1390,31 +1632,39 @@ export default function NewOffer() {
         style={{ background: "#fff" }}
       >
         <div className="flex gap-0">
-          {steps.map((s, i) => (
-            <div
-              key={i}
-              className="flex-1 text-center p-[8px_4px] text-[11px] font-mono tracking-[1px] whitespace-nowrap"
-              style={{
-                borderBottom:
-                  step === i + 1
-                    ? "2px solid #B8860B"
-                    : "2px solid transparent",
-                color:
-                  step === i + 1
-                    ? "#B8860B"
-                    : step > i + 1
-                      ? "#1A8A5A"
-                      : "#8892AA",
-                fontWeight: step === i + 1 ? 700 : 400,
-              }}
-            >
-              {step > i + 1 ? "✓ " : ""}
-              {i + 1}.{" "}
-              <span className={step === i + 1 ? "inline" : "hidden sm:inline"}>
-                {s}
-              </span>
-            </div>
-          ))}
+          {steps.map((s, i) => {
+            const stepNum = i + 1;
+            const isClickable = stepNum < step;
+            return (
+              <div
+                key={i}
+                onClick={isClickable ? () => handleGoToStep(stepNum) : undefined}
+                className={`flex-1 text-center p-[8px_4px] text-[11px] font-mono tracking-[1px] whitespace-nowrap ${
+                  isClickable ? "hover:opacity-80 transition-opacity" : ""
+                }`}
+                style={{
+                  borderBottom:
+                    step === stepNum
+                      ? "2px solid #B8860B"
+                      : "2px solid transparent",
+                  color:
+                    step === stepNum
+                      ? "#B8860B"
+                      : step > stepNum
+                        ? "#1A8A5A"
+                        : "#8892AA",
+                  fontWeight: step === stepNum ? 700 : 400,
+                  cursor: isClickable ? "pointer" : "default",
+                }}
+              >
+                {step > stepNum ? "✓ " : ""}
+                {stepNum}.{" "}
+                <span className={step === stepNum ? "inline" : "hidden sm:inline"}>
+                  {s}
+                </span>
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -1509,6 +1759,12 @@ export default function NewOffer() {
               setUnit(null);
               setPlan(null);
               setFetchedUnits([]);
+              setUnitsPagination({
+                page: 1,
+                limit: 20,
+                total: 0,
+                totalPages: 1,
+              });
               setUnitPaymentPlans([]);
             }}
             className="h-[38px] px-4 rounded-[6px] text-[12px] cursor-pointer mb-4 text-white border-none"
@@ -1528,7 +1784,7 @@ export default function NewOffer() {
               <span className="inline-flex items-center rounded px-2.5 py-0.5 text-[11px] font-mono border bg-gold-dim text-gold border-[rgba(184,134,11,0.3)]">
                 {loadingUnits
                   ? "Loading..."
-                  : `${currentProjUnits.length} units available`}
+                  : `${unitsPagination.total} units available`}
               </span>
             </div>
             <div className="flex gap-2.5 flex-wrap">
@@ -1723,92 +1979,118 @@ export default function NewOffer() {
             </table>
           </div>
 
-          <div
-            className="p-[16px] rounded-[10px] border border-dashed border-border mt-4"
-            style={{ background: "#F0F4FA" }}
-          >
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-              <div>
-                <div className="text-[13px] font-semibold text-navy">
-                  Did not find unit?
-                </div>
-                <div className="text-[11px] text-navy-dim mt-0.5">
-                  Create a temporary unit. It stays visible to everyone until
-                  admin uploads the master availability list.
-                </div>
+          {/* Pagination */}
+          {unitsPagination.totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between mt-4 px-2 gap-3">
+              <div className="text-[12px] text-navy-dim font-mono">
+                Showing {(unitsPagination.page - 1) * unitsPagination.limit + 1}
+                –
+                {Math.min(
+                  unitsPagination.page * unitsPagination.limit,
+                  unitsPagination.total,
+                )}{" "}
+                of {unitsPagination.total}
               </div>
-              <button
-                onClick={() => setGhostModalOpen(true)}
-                className="h-[38px] px-4 rounded-[6px] text-sm font-bold cursor-pointer text-navy bg-linear-to-r from-[#C9A84C] to-[#E4C97A] border-none whitespace-nowrap w-full sm:w-auto text-center"
-              >
-                + Create Ghost Unit
-              </button>
-            </div>
-            {ghostUnits.length > 0 && (
-              <div className="mt-3.5 pt-3.5 border-t border-border">
-                <div className="text-[10px] font-mono text-gold tracking-[1.5px] mb-2">
-                  GHOST UNITS (TEMPORARY)
-                </div>
-                {ghostUnits.map((u) => {
-                  const ut = proj.unitTypes?.find((t) => t.id === u.typeId);
-                  return (
-                    <div
-                      key={u.id}
-                      onClick={() => {
-                        handleSelectUnit(u);
-                      }}
-                      className="flex justify-between items-center p-[10px_14px] rounded-[6px] mb-1.5 cursor-pointer border"
-                      style={{
-                        background: "rgba(184,134,11,0.05)",
-                        borderColor: "rgba(184,134,11,0.2)",
-                      }}
-                    >
-                      <div className="flex gap-4 items-center">
-                        <span className="font-bold text-gold font-mono">
-                          {u.number}
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <button
+                  onClick={() => {
+                    fetchUnitsForProject(
+                      proj.id,
+                      unitSearch,
+                      unitTypeFilter,
+                      proj,
+                      unitsPagination.page - 1,
+                      unitsPagination.limit,
+                    );
+                  }}
+                  disabled={unitsPagination.page <= 1}
+                  className="h-[34px] px-3.5 rounded-[6px] text-[12px] font-mono cursor-pointer border border-border text-navy bg-white hover:bg-surface disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  ← Prev
+                </button>
+                {(() => {
+                  const current = unitsPagination.page;
+                  const total = unitsPagination.totalPages;
+                  const pages: (number | string)[] = [];
+
+                  pages.push(1);
+
+                  if (current !== 1 && current !== total) {
+                    if (current > 2) {
+                      pages.push("ellipsis1");
+                    }
+                    pages.push(current);
+                    if (current < total - 1) {
+                      pages.push("ellipsis2");
+                    }
+                  } else {
+                    if (total > 2) {
+                      pages.push("ellipsis-mid");
+                    }
+                  }
+
+                  if (total > 1) {
+                    pages.push(total);
+                  }
+
+                  return pages.map((p, i) => {
+                    if (typeof p === "string") {
+                      return (
+                        <span
+                          key={`ell-${i}`}
+                          className="px-1 text-navy-dim font-mono text-[12px]"
+                        >
+                          ...
                         </span>
-                        <span className="text-[12px] text-navy-light">
-                          {ut?.label}
-                          {u.subtype ? ` - ${u.subtype}` : ""}
-                        </span>
-                        <span className="text-[12px] text-navy-light">
-                          Floor {u.floor}
-                        </span>
-                        <span className="text-[12px] text-navy-light">
-                          {(u.area || 0).toLocaleString()} sqft
-                        </span>
-                        <span className="text-[12px] font-semibold text-navy">
-                          {fmtAED(u.price)}
-                        </span>
-                      </div>
+                      );
+                    }
+                    const isSelected = p === current;
+                    return (
                       <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const localMap =
-                            storage.get<UnitsMap>(STORAGE_KEYS.UNITS) || {};
-                          localMap[proj.id] = (localMap[proj.id] || []).filter(
-                            (x) => x.id !== u.id,
+                        key={p}
+                        onClick={() => {
+                          fetchUnitsForProject(
+                            proj.id,
+                            unitSearch,
+                            unitTypeFilter,
+                            proj,
+                            p as number,
+                            unitsPagination.limit,
                           );
-                          storage.set(STORAGE_KEYS.UNITS, localMap);
-                          const g: Record<string, unknown[]> = {};
-                          Object.keys(localMap).forEach((pid) => {
-                            g[pid] = (localMap[pid] || []).filter(
-                              (uu) => uu.isGhost,
-                            );
-                          });
-                          storage.set(STORAGE_KEYS.GHOST_UNITS, g);
-                          window.location.reload();
                         }}
-                        className="text-xs font-semibold cursor-pointer text-red hover:bg-red-dim px-3 py-1.5 rounded"
+                        className={`h-[34px] min-w-[34px] px-2 rounded-[6px] text-[12px] font-mono cursor-pointer border text-center transition-all ${
+                          isSelected
+                            ? "text-white font-bold border-none"
+                            : "border-border text-navy bg-white hover:bg-surface"
+                        }`}
+                        style={{
+                          background: isSelected ? pc : undefined,
+                        }}
                       >
-                        Remove
+                        {p}
                       </button>
-                    </div>
-                  );
-                })}
+                    );
+                  });
+                })()}
+                <button
+                  onClick={() => {
+                    fetchUnitsForProject(
+                      proj.id,
+                      unitSearch,
+                      unitTypeFilter,
+                      proj,
+                      unitsPagination.page + 1,
+                      unitsPagination.limit,
+                    );
+                  }}
+                  disabled={unitsPagination.page >= unitsPagination.totalPages}
+                  className="h-[34px] px-3.5 rounded-[6px] text-[12px] font-mono cursor-pointer border border-border text-navy bg-white hover:bg-surface disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Next →
+                </button>
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
           <GhostUnitModal
             open={ghostModalOpen}
@@ -2453,7 +2735,7 @@ export default function NewOffer() {
                       </tbody>
                     </table>
                   </div>
-                  <button
+                  {/* <button
                     onClick={() => {
                       setRecoverySchedule(null);
                       setRecoveryMonthlyPct("");
@@ -2462,7 +2744,7 @@ export default function NewOffer() {
                     className="h-[38px] px-4 rounded-[6px] text-sm cursor-pointer border border-border text-navy bg-white hover:bg-surface"
                   >
                     Regenerate
-                  </button>
+                  </button> */}
                 </div>
               )}
             </div>
@@ -2862,6 +3144,16 @@ export default function NewOffer() {
                 !client.trim() ||
                 (offerMode === "comparison" && selectedPlanIds.length === 0)
               }
+              onClick={handleDone}
+              className="flex-1 p-[14px] rounded-[6px] text-[14px] font-bold text-white bg-green border-none disabled:opacity-40 disabled:cursor-not-allowed enabled:cursor-pointer enabled:hover:bg-[#146b45] w-full text-center"
+            >
+              Done
+            </button>
+            <button
+              disabled={
+                !client.trim() ||
+                (offerMode === "comparison" && selectedPlanIds.length === 0)
+              }
               onClick={handleGenerate}
               className="flex-1 p-[14px] rounded-[6px] text-[14px] font-bold text-white bg-green border-none disabled:opacity-40 disabled:cursor-not-allowed enabled:cursor-pointer enabled:hover:bg-[#15724C] w-full text-center"
             >
@@ -2874,7 +3166,7 @@ export default function NewOffer() {
                     : "Generate Offer PDF"}
             </button>
 
-            <button
+            {/* <button
               disabled={
                 !client.trim() ||
                 (offerMode === "comparison" && selectedPlanIds.length === 0)
@@ -2883,10 +3175,10 @@ export default function NewOffer() {
               className="flex-1 p-[14px] rounded-[6px] text-[14px] font-bold text-white bg-green border-none disabled:opacity-40 disabled:cursor-not-allowed enabled:cursor-pointer enabled:hover:bg-[#146b45] w-full text-center"
             >
               Done
-            </button>
+            </button> */}
           </div>
 
-          {clientPhone && client && (
+          {/* {clientPhone && client && (
             <div className="mt-3 text-center">
               <a
                 href={`https://wa.me/${clientPhone.replace(/[^0-9]/g, "")}?text=Dear ${encodeURIComponent(client)}, please find your property offer from Reportage Properties attached.`}
@@ -2897,7 +3189,7 @@ export default function NewOffer() {
                 Send via WhatsApp
               </a>
             </div>
-          )}
+          )} */}
         </div>
       )}
     </div>
@@ -3186,7 +3478,8 @@ export function OfferPreview({
                   zIndex: 0,
                 }}
               >
-                {watermark.startsWith("data:") || watermark.startsWith("http") ? (
+                {watermark.startsWith("data:") ||
+                watermark.startsWith("http") ? (
                   <img
                     src={watermark}
                     alt=""
@@ -5368,7 +5661,8 @@ function WatermarkPreview({
         zIndex: 0,
       }}
     >
-      {watermark && (watermark.startsWith("data:") || watermark.startsWith("http")) ? (
+      {watermark &&
+      (watermark.startsWith("data:") || watermark.startsWith("http")) ? (
         <img
           src={watermark}
           alt=""

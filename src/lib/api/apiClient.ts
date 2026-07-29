@@ -35,6 +35,14 @@ apiClient.interceptors.request.use(
 
 let isRefreshing = false
 let failedQueue: any[] = []
+let isRedirecting = false
+
+const redirectToLogin = () => {
+  if (isRedirecting) return
+  isRedirecting = true
+  useAuthStore.getState().signOut()
+  window.location.href = '/login'
+}
 
 const processQueue = (error: any, token: string | null = null) => {
   failedQueue.forEach((prom) => {
@@ -79,6 +87,8 @@ apiClient.interceptors.response.use(
       const refreshToken = useAuthStore.getState().refreshToken
       if (!refreshToken) {
         isRefreshing = false
+        // No refresh token available — clear auth state and redirect to login
+        redirectToLogin()
         return Promise.reject(error)
       }
 
@@ -105,6 +115,8 @@ apiClient.interceptors.response.use(
       } catch (err) {
         processQueue(err, null)
         isRefreshing = false
+        // Refresh token is expired or invalid — clear auth state and redirect to login
+        redirectToLogin()
         return Promise.reject(err)
       }
     }

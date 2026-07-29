@@ -39,8 +39,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }>('auth/me')
         setUser(response.data.data)
       } catch (err) {
-        // Log the error but do not automatically log the user out
         console.error('Failed to fetch current user profile:', err)
+        // Token is invalid or expired — clear auth state
+        // The apiClient interceptor handles redirect to /login on 401
+        storeSignOut()
       } finally {
         setIsLoading(false)
       }

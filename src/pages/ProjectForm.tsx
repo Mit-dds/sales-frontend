@@ -560,6 +560,46 @@ export default function ProjectForm({
     }
   };
 
+  const handleFileRemove = async (key: "heroImage" | "masterPlan") => {
+    const uploadType = key === "heroImage" ? "hero" : "master-plan";
+
+    if (!isNew && p.id) {
+      const loadingId = toast.loading(
+        `Removing ${key === "heroImage" ? "hero image" : "master plan"}...`,
+      );
+      try {
+        const response = await apiClient.delete<{
+          success: boolean;
+          data: { project: any };
+        }>(`projects/${p.id}/file?type=${uploadType}`);
+
+        toast.dismiss(loadingId);
+        if (response.data.success) {
+          const updatedProject = response.data.data.project;
+          setP(normalizeProjectData(updatedProject));
+          u(key, null);
+          toast.success(
+            `${key === "heroImage" ? "Hero image" : "Master plan"} removed successfully`,
+          );
+        }
+      } catch (err: any) {
+        toast.dismiss(loadingId);
+        const msg =
+          err.response?.data?.message ||
+          err.message ||
+          "Failed to remove file from server";
+        toast.error(msg);
+      }
+    } else {
+      if (key === "heroImage") {
+        setHeroFile(null);
+      } else {
+        setMasterFile(null);
+      }
+      u(key, null);
+    }
+  };
+
 
 
   return (
@@ -1100,8 +1140,9 @@ export default function ProjectForm({
                   className="w-full h-[140px] object-cover block"
                 />
                 <button
-                  onClick={() => u("heroImage", null)}
-                  className="absolute top-1.5 right-1.5 bg-black/60 text-white border-none rounded px-2.5 py-1 text-xs cursor-pointer"
+                  type="button"
+                  onClick={() => handleFileRemove("heroImage")}
+                  className="absolute top-1.5 right-1.5 bg-black/60 text-white border-none rounded px-2.5 py-1 text-xs cursor-pointer hover:bg-black/80 transition-colors"
                 >
                   Remove
                 </button>
@@ -1155,8 +1196,9 @@ export default function ProjectForm({
                   />
                 </label>
                 <button
-                  onClick={() => u("masterPlan", null)}
-                  className="h-[34px] px-3 rounded-[6px] text-xs font-semibold cursor-pointer text-red hover:bg-red-dim"
+                  type="button"
+                  onClick={() => handleFileRemove("masterPlan")}
+                  className="h-[34px] px-3 rounded-[6px] text-xs font-semibold cursor-pointer text-red hover:bg-red-dim transition-colors"
                 >
                   Remove
                 </button>

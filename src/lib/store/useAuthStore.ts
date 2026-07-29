@@ -19,7 +19,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   user: storage.get<User>(STORAGE_KEYS.CURRENT_USER) || null,
   token: storage.get<string>(STORAGE_KEYS.TOKEN) || null,
   refreshToken: storage.get<string>(STORAGE_KEYS.REFRESH_TOKEN) || null,
-  isLoading: false,
+  isLoading: !!storage.get<string>(STORAGE_KEYS.TOKEN),
 
   setUser: (user) => {
     if (user) {

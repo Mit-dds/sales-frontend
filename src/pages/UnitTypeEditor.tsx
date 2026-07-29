@@ -57,6 +57,7 @@ export default function UnitTypeEditor({
     }
     return [];
   });
+  const [clearedFloorPlans, setClearedFloorPlans] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const loadInitialSubtypes = async () => {
@@ -370,7 +371,11 @@ export default function UnitTypeEditor({
           const subtypesPayload = (ut.subtypes || [])
             .map((label, index) => {
               const id = subtypeIdsByIndex[index];
-              return id ? { id, label } : { label };
+              const entry: Record<string, any> = id ? { id, label } : { label };
+              if (id && label && clearedFloorPlans.has(label)) {
+                entry.clearFloorPlan = true;
+              }
+              return entry;
             })
             .filter((x) => x.label);
 
@@ -387,6 +392,9 @@ export default function UnitTypeEditor({
                 const id = subtypeIdsByIndex[index];
                 if (id) {
                   formData.append(`subtypes[${index}][id]`, id);
+                  if (clearedFloorPlans.has(label)) {
+                    formData.append(`subtypes[${index}][clearFloorPlan]`, "true");
+                  }
                 }
                 formData.append(`subtypes[${index}][label]`, label);
                 const fp = ut.floorPlans?.[label];
@@ -478,6 +486,7 @@ export default function UnitTypeEditor({
               floorPlans: floorPlansMap,
             };
             setUt(currentUt);
+            setClearedFloorPlans(new Set());
             toast.success("Sub Types saved successfully!");
           }
         } else if (tab === "plans") {
@@ -532,6 +541,9 @@ export default function UnitTypeEditor({
               const id = subtypeIdsByIndex[index];
               if (id) {
                 formData.append(`subtypes[${index}][id]`, id);
+                if (clearedFloorPlans.has(label)) {
+                  formData.append(`subtypes[${index}][clearFloorPlan]`, "true");
+                }
               }
               formData.append(`subtypes[${index}][label]`, label);
               const fp = ut.floorPlans?.[label];
@@ -593,6 +605,7 @@ export default function UnitTypeEditor({
               floorPlans: floorPlansMap,
             };
             setUt(currentUt);
+            setClearedFloorPlans(new Set());
             toast.success("Floor Plans saved successfully!");
           }
         }
@@ -644,6 +657,7 @@ export default function UnitTypeEditor({
     const fp = { ...(ut.floorPlans || {}) };
     delete fp[fpKey];
     u("floorPlans", fp);
+    setClearedFloorPlans((prev) => new Set(prev).add(fpKey));
   };
 
   const isNewUT = !ut.id || ut.id.startsWith("ut_");
