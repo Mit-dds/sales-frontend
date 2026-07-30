@@ -130,7 +130,7 @@ export default function Profile() {
           </div>
           <div className="flex-1 space-y-3 w-full">
             <div>
-              <div className="block text-[10px] font-mono text-navy-light tracking-[1.6px] uppercase mb-1.5">
+              <div className="block text-[10px] font-sans text-navy-light tracking-[1.6px] uppercase mb-1.5">
                 Full Name
               </div>
               <input
@@ -151,7 +151,7 @@ export default function Profile() {
             </div>
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="flex-1">
-                <div className="block text-[10px] font-mono text-navy-light tracking-[1.6px] uppercase mb-1.5">
+                <div className="block text-[10px] font-sans text-navy-light tracking-[1.6px] uppercase mb-1.5">
                   Login Email
                 </div>
                 <input
@@ -162,7 +162,7 @@ export default function Profile() {
                 />
               </div>
               <div className="flex-1">
-                <div className="block text-[10px] font-mono text-navy-light tracking-[1.6px] uppercase mb-1.5">
+                <div className="block text-[10px] font-sans text-navy-light tracking-[1.6px] uppercase mb-1.5">
                   Phone / WhatsApp
                 </div>
                 <input
@@ -189,7 +189,7 @@ export default function Profile() {
             </div>
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="flex-1">
-                <div className="block text-[10px] font-mono text-navy-light tracking-[1.6px] uppercase mb-1.5">
+                <div className="block text-[10px] font-sans text-navy-light tracking-[1.6px] uppercase mb-1.5">
                   Email (for offer footer)
                 </div>
                  <input
@@ -199,7 +199,7 @@ export default function Profile() {
                  />
               </div>
               <div className="flex-1">
-                <div className="block text-[10px] font-mono text-navy-light tracking-[1.6px] uppercase mb-1.5">
+                <div className="block text-[10px] font-sans text-navy-light tracking-[1.6px] uppercase mb-1.5">
                   Role
                 </div>
                 <div className="h-[38px] flex items-center px-3.5 text-[13px] text-navy-dim">
@@ -211,7 +211,7 @@ export default function Profile() {
         </div>
 
         <div className="bg-surface border border-border rounded-[10px] p-6 mb-4">
-          <div className="block text-[10px] font-mono text-navy-light tracking-[1.6px] uppercase mb-1.5">
+          <div className="block text-[10px] font-sans text-navy-light tracking-[1.6px] uppercase mb-1.5">
             Watermark
           </div>
           <div className="text-[12px] text-navy-dim mb-3">

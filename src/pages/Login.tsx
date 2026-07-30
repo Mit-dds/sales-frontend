@@ -17,7 +17,7 @@ function Field({
   return (
     <div style={{ marginBottom: 14 }}>
       {label && (
-        <div className="text-[10px] text-navy-light tracking-[1.6px] uppercase font-mono mb-1.5">
+        <div className="text-[10px] text-navy-light tracking-[1.6px] uppercase font-sans mb-1.5">
           {label}
         </div>
       )}

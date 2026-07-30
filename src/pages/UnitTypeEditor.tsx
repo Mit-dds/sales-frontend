@@ -57,7 +57,9 @@ export default function UnitTypeEditor({
     }
     return [];
   });
-  const [clearedFloorPlans, setClearedFloorPlans] = useState<Set<string>>(new Set());
+  const [clearedFloorPlans, setClearedFloorPlans] = useState<Set<string>>(
+    new Set(),
+  );
 
   useEffect(() => {
     const loadInitialSubtypes = async () => {
@@ -393,7 +395,10 @@ export default function UnitTypeEditor({
                 if (id) {
                   formData.append(`subtypes[${index}][id]`, id);
                   if (clearedFloorPlans.has(label)) {
-                    formData.append(`subtypes[${index}][clearFloorPlan]`, "true");
+                    formData.append(
+                      `subtypes[${index}][clearFloorPlan]`,
+                      "true",
+                    );
                   }
                 }
                 formData.append(`subtypes[${index}][label]`, label);
@@ -449,7 +454,9 @@ export default function UnitTypeEditor({
 
             const subtypesList = updatedSubtypes.map((st: any) => st.label);
 
-            const floorPlansMap: Record<string, FloorPlan> = { ...(ut.floorPlans || {}) };
+            const floorPlansMap: Record<string, FloorPlan> = {
+              ...(ut.floorPlans || {}),
+            };
             const getFileUrl = (path: string) => {
               if (path && !path.startsWith("http")) {
                 let backendRoot = (
@@ -722,8 +729,9 @@ export default function UnitTypeEditor({
                 background: active ? getRgbaColor(pc, 0.12) : "#fff",
                 color: active ? pc : enabled ? "#4A5880" : "#94a3b8",
                 fontWeight: active ? 600 : 400,
-                borderBottom:
-                  active ? `2px solid ${pc}` : "2px solid transparent",
+                borderBottom: active
+                  ? `2px solid ${pc}`
+                  : "2px solid transparent",
                 boxShadow: active ? "0 2px 6px rgba(0,0,0,0.08)" : "none",
               }}
             >
@@ -740,7 +748,7 @@ export default function UnitTypeEditor({
       {tab === "details" && (
         <Card padding="p-2 md:p-6">
           <div className="mb-4">
-            <label className="block text-[10px] font-mono text-navy-light tracking-[1.6px] uppercase mb-1.5">
+            <label className="block text-[10px] font-sans text-navy-light tracking-[1.6px] uppercase mb-1.5">
               Unit Type Label
             </label>
             <input
@@ -752,7 +760,7 @@ export default function UnitTypeEditor({
           </div>
 
           <div className="mb-2">
-            <label className="block text-[10px] font-mono text-navy-light tracking-[1.6px] uppercase mb-1.5">
+            <label className="block text-[10px] font-sans text-navy-light tracking-[1.6px] uppercase mb-1.5">
               Sub Types & Floor Plans{" "}
               <span className="text-navy-dim font-normal tracking-normal text-[11px]">
                 (name each sub type and upload its floor plan)
@@ -964,7 +972,7 @@ export default function UnitTypeEditor({
           </div>
 
           <div className="mt-3.5">
-            <label className="block text-[10px] font-mono text-navy-light tracking-[1.6px] uppercase mb-1.5">
+            <label className="block text-[10px] font-sans text-navy-light tracking-[1.6px] uppercase mb-1.5">
               Virtual Tour Link (optional)
             </label>
             <input
@@ -980,7 +988,7 @@ export default function UnitTypeEditor({
       {/* Payment Plans */}
       {tab === "plans" && (
         <Card padding="p-2 md:p-6">
-          <div className="text-[10px] font-mono text-navy-light tracking-[1.5px] uppercase mt-1 md:mb-1">
+          <div className="text-[10px] font-sans text-navy-light tracking-[1.5px] uppercase mt-1 md:mb-1">
             Payment Plans for {(ut.label || "this unit type").toUpperCase()}
           </div>
           <div className="text-[12px] text-navy-dim mb-3">
@@ -1083,8 +1091,8 @@ export default function UnitTypeEditor({
 
       {/* Floor Plans */}
       {tab === "files" && (
-        <Card padding="p-6">
-          <div className="text-[10px] font-mono text-navy-light tracking-[1.5px] uppercase mb-1.5">
+        <Card padding="p-4 md:p-6">
+          <div className="text-[10px] font-sans text-navy-light tracking-[1.5px] uppercase mb-1.5">
             Floor Plans
           </div>
           <div className="text-[12px] text-navy-dim mb-2">

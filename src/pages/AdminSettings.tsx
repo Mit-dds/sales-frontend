@@ -52,15 +52,24 @@ export default function AdminSettings() {
           const currentSettings = settingsService.get();
           const mergedSettings: Settings = {
             teamName: data.teamName || currentSettings.teamName,
-            usdRate: rates.USD ?? data.usdRate ?? currentSettings.usdRate ?? 0.272,
-            eurRate: rates.EUR ?? data.eurRate ?? currentSettings.eurRate ?? 0.25,
-            gbpRate: rates.GBP ?? data.gbpRate ?? currentSettings.gbpRate ?? 0.214,
-            inrRate: rates.INR ?? data.inrRate ?? currentSettings.inrRate ?? 22.5,
-            rubRate: rates.RUB ?? data.rubRate ?? currentSettings.rubRate ?? 24.8,
-            audRate: rates.AUD ?? data.audRate ?? currentSettings.audRate ?? 0.421,
-            cadRate: rates.CAD ?? data.cadRate ?? currentSettings.cadRate ?? 0.371,
-            sarRate: rates.SAR ?? data.sarRate ?? currentSettings.sarRate ?? 1.02,
-            pkrRate: rates.PKR ?? data.pkrRate ?? currentSettings.pkrRate ?? 75.6,
+            usdRate:
+              rates.USD ?? data.usdRate ?? currentSettings.usdRate ?? 0.272,
+            eurRate:
+              rates.EUR ?? data.eurRate ?? currentSettings.eurRate ?? 0.25,
+            gbpRate:
+              rates.GBP ?? data.gbpRate ?? currentSettings.gbpRate ?? 0.214,
+            inrRate:
+              rates.INR ?? data.inrRate ?? currentSettings.inrRate ?? 22.5,
+            rubRate:
+              rates.RUB ?? data.rubRate ?? currentSettings.rubRate ?? 24.8,
+            audRate:
+              rates.AUD ?? data.audRate ?? currentSettings.audRate ?? 0.421,
+            cadRate:
+              rates.CAD ?? data.cadRate ?? currentSettings.cadRate ?? 0.371,
+            sarRate:
+              rates.SAR ?? data.sarRate ?? currentSettings.sarRate ?? 1.02,
+            pkrRate:
+              rates.PKR ?? data.pkrRate ?? currentSettings.pkrRate ?? 75.6,
           };
           setSettings(mergedSettings);
           settingsService.update(mergedSettings);
@@ -112,12 +121,12 @@ export default function AdminSettings() {
         Settings
       </h1>
 
-      <div className="bg-white border border-border rounded-[10px] p-6 mb-5 shadow-[0_2px_8px_rgba(30,60,120,0.06)]">
-        <div className="text-[10px] text-navy-light tracking-[1.5px] font-mono mb-3">
+      <div className="bg-white border border-border rounded-[10px] p-4 md:p-6 mb-5 shadow-[0_2px_8px_rgba(30,60,120,0.06)]">
+        <div className="text-[10px] text-navy-light tracking-[1.5px] font-sans mb-3">
           TEAM
         </div>
         <div>
-          <div className="text-[10px] text-navy-light tracking-[1.6px] uppercase font-mono mb-1.5">
+          <div className="text-[10px] text-navy-light tracking-[1.6px] uppercase font-sans mb-1.5">
             Team Name
           </div>
           <input
@@ -128,8 +137,8 @@ export default function AdminSettings() {
         </div>
       </div>
 
-      <div className="bg-white border border-border rounded-[10px] p-6 shadow-[0_2px_8px_rgba(30,60,120,0.06)]">
-        <div className="text-[10px] text-navy-light tracking-[1.5px] font-mono mb-1.5">
+      <div className="bg-white border border-border rounded-[10px] p-4 md:p-6 shadow-[0_2px_8px_rgba(30,60,120,0.06)]">
+        <div className="text-[10px] text-navy-light tracking-[1.5px] font-sans mb-1.5">
           EXCHANGE RATES
         </div>
         <div className="text-[12px] text-navy-dim mb-4">
@@ -138,7 +147,7 @@ export default function AdminSettings() {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-3">
           {CURRENCIES.map(([key, label]) => (
             <div key={key}>
-              <div className="text-[10px] text-navy-light tracking-[1.6px] uppercase font-mono mb-1.5">
+              <div className="text-[10px] text-navy-light tracking-[1.6px] uppercase font-sans mb-1.5">
                 {label}
               </div>
               <input

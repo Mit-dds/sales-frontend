@@ -20,7 +20,7 @@
 
   --font-sans: 'Outfit', sans-serif;
   --font-serif: 'Cormorant Garamond', serif;
-  --font-mono: 'DM Mono', monospace;
+  --font-mono: 'Outfit', sans-serif;
 }
 
 @keyframes slide-in-left {

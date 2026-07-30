@@ -159,10 +159,10 @@ export default function Availability() {
         </h1>
       </div>
 
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between p-[14px_20px] rounded-[10px] border border-border mb-4 bg-white gap-3">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between p-4 md:p-[14px_20px] rounded-[10px] border border-border mb-4 bg-white gap-3">
         <div className="flex gap-3 items-center flex-wrap">
           <span
-            className={`inline-flex items-center rounded px-2.5 py-1 text-[11px] font-mono border ${
+            className={`inline-flex items-center rounded px-2.5 py-1 text-[11px] font-sans border ${
               totalUnits > 0
                 ? "bg-green-dim text-green border-[rgba(26,138,90,0.3)]"
                 : "bg-red-dim text-red border-[rgba(192,57,43,0.3)]"
@@ -173,7 +173,7 @@ export default function Availability() {
           {projects.map((p) => (
             <span
               key={p.projectId}
-              className="inline-flex items-center rounded px-2.5 py-1 text-[10px] font-mono border bg-[rgba(30,111,217,0.05)] text-blue border-[rgba(30,111,217,0.25)]"
+              className="inline-flex items-center rounded px-2.5 py-1 text-[10px] font-sans border bg-[rgba(30,111,217,0.05)] text-blue border-[rgba(30,111,217,0.25)]"
             >
               {p.projectName}: {(p.units || []).length}
             </span>
@@ -182,7 +182,7 @@ export default function Availability() {
         {totalUnits > 0 && (
           <button
             onClick={handleClearAll}
-            className="h-[30px] px-3.5 rounded-[6px] text-xs font-semibold cursor-pointer border border-[#F5C2C2] text-red bg-white hover:bg-[#FFF5F5] transition-colors self-end sm:self-auto shrink-0"
+            className="h-[34px] sm:h-[30px] w-full sm:w-auto px-3.5 rounded-[6px] text-xs font-semibold cursor-pointer border border-[#F5C2C2] text-red bg-white hover:bg-[#FFF5F5] transition-colors text-center shrink-0"
           >
             Clear All
           </button>
@@ -201,7 +201,7 @@ export default function Availability() {
           handleFiles(e.dataTransfer.files);
         }}
         onClick={() => fileRef.current?.click()}
-        className="rounded-[12px] p-[48px_24px] text-center cursor-pointer border-2 border-dashed transition-colors bg-[#F8FAFF]"
+        className="rounded-[12px] p-6 md:p-12 text-center cursor-pointer border-2 border-dashed transition-colors bg-[#F8FAFF]"
         style={{
           borderColor: drag ? "#B8860B" : "#BDD1EB",
         }}
@@ -216,20 +216,20 @@ export default function Availability() {
           }}
         />
         <div className="text-[40px] text-navy mb-3">XLS</div>
-        <div className="font-serif text-[22px] text-navy mb-2">
+        <div className="font-serif text-[18px] md:text-[22px] text-navy mb-2">
           {parsing ? "Processing..." : "Drop Master Availability File Here"}
         </div>
         <div className="text-[13px] text-navy-dim mb-3">
           or click to browse - .xlsx / .xls
         </div>
-        <div className="inline-flex gap-2 flex-wrap justify-center">
-          <span className="inline-flex items-center rounded px-2.5 py-1 text-[11px] font-mono border bg-[rgba(201,168,76,0.05)] text-gold border-[rgba(201,168,76,0.3)]">
+        <div className="flex flex-col sm:flex-row gap-2 justify-center items-center flex-wrap">
+          <span className="inline-flex items-center rounded px-2.5 py-1 text-[11px] font-sans border bg-[rgba(201,168,76,0.05)] text-gold border-[rgba(201,168,76,0.3)]">
             All cities in one file
           </span>
-          <span className="inline-flex items-center rounded px-2.5 py-1 text-[11px] font-mono border bg-[rgba(30,111,217,0.05)] text-blue border-[rgba(30,111,217,0.3)]">
+          <span className="inline-flex items-center rounded px-2.5 py-1 text-[11px] font-sans border bg-[rgba(30,111,217,0.05)] text-blue border-[rgba(30,111,217,0.3)] text-center">
             Dubai, Abu Dhabi, BRABUS, any city
           </span>
-          <span className="inline-flex items-center rounded px-2.5 py-1 text-[11px] font-mono border bg-[rgba(200,100,10,0.05)] text-orange border-[rgba(200,100,10,0.3)]">
+          <span className="inline-flex items-center rounded px-2.5 py-1 text-[11px] font-sans border bg-[rgba(200,100,10,0.05)] text-orange border-[rgba(200,100,10,0.3)]">
             Replaces all existing data
           </span>
         </div>
@@ -237,7 +237,7 @@ export default function Availability() {
 
       {parseResult && (
         <Card
-          padding="p-5"
+          padding="p-3 md:p-5"
           className="mt-4"
           style={{
             border: `1px solid ${parseResult.result.errors.length > 0 && parseResult.result.added === 0 ? "rgba(192,57,43,0.3)" : "rgba(26,138,90,0.3)"}`,
@@ -248,12 +248,12 @@ export default function Availability() {
                 : "rgba(26,138,90,0.04)",
           }}
         >
-          <div className="text-[10px] font-mono text-navy-light tracking-[1.5px] mb-3">
+          <div className="text-[10px] font-sans text-navy-light tracking-[1.5px] mb-3">
             UPLOAD RESULT - {parseResult.filename}
           </div>
           <div className="flex gap-6 mb-3 flex-wrap">
             <div>
-              <div className="text-[9px] font-mono text-navy-dim">
+              <div className="text-[9px] font-sans text-navy-dim">
                 UNITS LOADED
               </div>
               <div className="text-[28px] font-bold text-green">
@@ -261,14 +261,14 @@ export default function Availability() {
               </div>
             </div>
             <div>
-              <div className="text-[9px] font-mono text-navy-dim">SKIPPED</div>
+              <div className="text-[9px] font-sans text-navy-dim">SKIPPED</div>
               <div className="text-[28px] font-bold text-navy-light">
                 {parseResult.result.skipped}
               </div>
             </div>
             {parseResult.result.errors.length > 0 && (
               <div>
-                <div className="text-[9px] font-mono text-navy-dim">
+                <div className="text-[9px] font-sans text-navy-dim">
                   WARNINGS
                 </div>
                 <div className="text-[28px] font-bold text-orange">
@@ -277,14 +277,15 @@ export default function Availability() {
               </div>
             )}
           </div>
-          {parseResult.result.skipped > 0 && parseResult.result.errors.length === 0 && (
-            <div className="flex gap-2.5 flex-wrap mb-3">
-              <div className="text-[11px] text-orange">
-                {parseResult.result.skipped} rows skipped —
-                check project name, city, property type, and unit types match
+          {parseResult.result.skipped > 0 &&
+            parseResult.result.errors.length === 0 && (
+              <div className="flex gap-2.5 flex-wrap mb-3">
+                <div className="text-[11px] text-orange">
+                  {parseResult.result.skipped} rows skipped — check project
+                  name, city, property type, and unit types match
+                </div>
               </div>
-            </div>
-          )}
+            )}
           {Object.keys(parseResult.result.byCity).length > 0 && (
             <div className="flex gap-2.5 flex-wrap mb-3">
               {Object.entries(parseResult.result.byCity).map(
@@ -294,7 +295,7 @@ export default function Availability() {
                     className="px-3 py-1.5 rounded-[6px] border border-border"
                     style={{ background: "#fff" }}
                   >
-                    <div className="text-[10px] font-mono text-navy-dim">
+                    <div className="text-[10px] font-sans text-navy-dim">
                       {city.toUpperCase()}
                     </div>
                     <div className="text-[14px] font-bold text-blue">

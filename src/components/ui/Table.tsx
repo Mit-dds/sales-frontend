@@ -61,7 +61,7 @@ export function Table<T>({
                 key={col.key}
                 className={`
                   px-3 py-[9px] text-left text-[10px] text-navy-light
-                  tracking-[1.4px] uppercase font-mono
+                  tracking-[1.4px] uppercase font-sans
                   border-b-2 border-border
                   ${col.sortable ? 'cursor-pointer select-none hover:text-navy' : ''}
                   ${col.className || ''}

@@ -162,8 +162,8 @@ export default function UserManagement() {
             className="w-full bg-white border border-border rounded-md px-3.5 py-2 text-[13px] text-navy placeholder-navy-dim outline-none focus:border-blue transition-colors"
           />
         </div>
-        <div className="flex gap-2.5 items-center w-full md:w-auto">
-          <span className="text-xs font-mono tracking-[1px] text-navy-dim uppercase">
+        <div className="flex gap-2.5 items-center w-full md:w-auto justify-end md:justify-start">
+          <span className="text-xs font-sans tracking-[1px] text-navy-dim uppercase">
             Status Filter:
           </span>
           <div className="relative">
@@ -201,19 +201,19 @@ export default function UserManagement() {
         <table className="w-full border-collapse min-w-[600px]">
           <thead>
             <tr className="bg-surface">
-              <th className="px-4 py-[11px] text-left text-[10px] text-navy-light font-mono tracking-[1.4px] uppercase border-b-2 border-border">
+              <th className="px-4 py-[11px] text-left text-[10px] text-navy-light font-sans tracking-[1.4px] uppercase border-b-2 border-border">
                 Name
               </th>
-              <th className="px-4 py-[11px] text-left text-[10px] text-navy-light font-mono tracking-[1.4px] uppercase border-b-2 border-border">
+              <th className="px-4 py-[11px] text-left text-[10px] text-navy-light font-sans tracking-[1.4px] uppercase border-b-2 border-border">
                 Email
               </th>
-              <th className="px-4 py-[11px] text-left text-[10px] text-navy-light font-mono tracking-[1.4px] uppercase border-b-2 border-border">
+              <th className="px-4 py-[11px] text-left text-[10px] text-navy-light font-sans tracking-[1.4px] uppercase border-b-2 border-border">
                 Role
               </th>
-              <th className="px-4 py-[11px] text-left text-[10px] text-navy-light font-mono tracking-[1.4px] uppercase border-b-2 border-border">
+              <th className="px-4 py-[11px] text-left text-[10px] text-navy-light font-sans tracking-[1.4px] uppercase border-b-2 border-border">
                 Status
               </th>
-              <th className="px-4 py-[11px] text-left text-[10px] text-navy-light font-mono tracking-[1.4px] uppercase border-b-2 border-border">
+              <th className="px-4 py-[11px] text-left text-[10px] text-navy-light font-sans tracking-[1.4px] uppercase border-b-2 border-border">
                 Action
               </th>
             </tr>
@@ -254,7 +254,7 @@ export default function UserManagement() {
                   </td>
                   <td className="px-4 py-[11px]">
                     <span
-                      className={`inline-block rounded px-2 py-0.5 text-[10px] font-mono ${
+                      className={`inline-block rounded px-2 py-0.5 text-[10px] font-sans ${
                         u.role === "admin"
                           ? "bg-gold-dim text-gold border border-[rgba(184,134,11,0.3)]"
                           : "bg-blue-dim text-blue border border-[rgba(30,111,217,0.3)]"
@@ -265,7 +265,7 @@ export default function UserManagement() {
                   </td>
                   <td className="px-4 py-[11px]">
                     <span
-                      className={`inline-block rounded px-2 py-0.5 text-[10px] font-mono ${getStatusBadge(u.status || "PENDING")}`}
+                      className={`inline-block rounded px-2 py-0.5 text-[10px] font-sans ${getStatusBadge(u.status || "PENDING")}`}
                     >
                       {u.status || "PENDING"}
                     </span>
@@ -393,7 +393,7 @@ export default function UserManagement() {
         {selectedProfileUser && (
           <div className="flex flex-col items-center py-4 text-center">
             {profileLoading ? (
-              <div className="py-12 text-xs text-navy-dim font-mono">
+              <div className="py-12 text-xs text-navy-dim font-sans">
                 Loading detailed profile information...
               </div>
             ) : (
@@ -403,7 +403,7 @@ export default function UserManagement() {
                   {selectedProfileUser.name}
                 </h3>
                 <span
-                  className={`inline-block rounded px-2.5 py-0.5 text-[10px] font-mono mt-1 ${
+                  className={`inline-block rounded px-2.5 py-0.5 text-[10px] font-sans mt-1 ${
                     selectedProfileUser.role === "admin"
                       ? "bg-gold-dim text-gold border border-[rgba(184,134,11,0.3)]"
                       : "bg-blue-dim text-blue border border-[rgba(30,111,217,0.3)]"
@@ -414,7 +414,7 @@ export default function UserManagement() {
 
                 <div className="w-full mt-6 space-y-4 border-t border-surface pt-4 text-left">
                   <div>
-                    <div className="text-[10px] text-navy-light tracking-[1.5px] uppercase font-mono">
+                    <div className="text-[10px] text-navy-light tracking-[1.5px] uppercase font-sans">
                       Email Address
                     </div>
                     <div className="text-[13px] text-navy font-semibold mt-0.5">
@@ -422,7 +422,7 @@ export default function UserManagement() {
                     </div>
                   </div>
                   <div>
-                    <div className="text-[10px] text-navy-light tracking-[1.5px] uppercase font-mono">
+                    <div className="text-[10px] text-navy-light tracking-[1.5px] uppercase font-sans">
                       Phone Number
                     </div>
                     <div className="text-[13px] text-navy font-semibold mt-0.5">
@@ -430,7 +430,7 @@ export default function UserManagement() {
                     </div>
                   </div>
                   <div>
-                    <div className="text-[10px] text-navy-light tracking-[1.5px] uppercase font-mono">
+                    <div className="text-[10px] text-navy-light tracking-[1.5px] uppercase font-sans">
                       Display Email
                     </div>
                     <div className="text-[13px] text-navy font-semibold mt-0.5">
@@ -438,11 +438,11 @@ export default function UserManagement() {
                     </div>
                   </div>
                   <div>
-                    <div className="text-[10px] text-navy-light tracking-[1.5px] uppercase font-mono">
+                    <div className="text-[10px] text-navy-light tracking-[1.5px] uppercase font-sans">
                       Account Status
                     </div>
                     <span
-                      className={`inline-block rounded px-2 py-0.5 text-[10px] font-mono mt-1.5 ${getStatusBadge(selectedProfileUser.status || "PENDING")}`}
+                      className={`inline-block rounded px-2 py-0.5 text-[10px] font-sans mt-1.5 ${getStatusBadge(selectedProfileUser.status || "PENDING")}`}
                     >
                       {selectedProfileUser.status || "PENDING"}
                     </span>

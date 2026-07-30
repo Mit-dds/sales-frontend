@@ -70,7 +70,7 @@ function F({
 }) {
   return (
     <div className={flex ? "flex-1 min-w-[140px]" : "mb-4"}>
-      <label className="block text-[10px] font-mono text-navy-light tracking-[1.6px] uppercase mb-1.5">
+      <label className="block text-[10px] font-sans text-navy-light tracking-[1.6px] uppercase mb-1.5">
         {lbl}
       </label>
       {children}
@@ -166,7 +166,7 @@ export default function PaymentPlanForm({
                   (h) => (
                     <th
                       key={h}
-                      className="px-3 py-[9px] text-left text-[11px] text-navy-light tracking-[1.4px] uppercase font-mono border-b-2 border-border whitespace-nowrap"
+                      className="px-3 py-[9px] text-left text-[11px] text-navy-light tracking-[1.4px] uppercase font-sans border-b-2 border-border whitespace-nowrap"
                     >
                       {h}
                     </th>
@@ -195,13 +195,13 @@ export default function PaymentPlanForm({
                       : "Till HO"}
                   </td>
                   <td className="px-3 py-[11px] text-[13px] whitespace-nowrap">
-                    <span className="inline-flex items-center rounded px-2 py-0.5 text-[10px] font-mono border bg-green-dim text-green border-[rgba(26,138,90,0.3)]">
+                    <span className="inline-flex items-center rounded px-2 py-0.5 text-[10px] font-sans border bg-green-dim text-green border-[rgba(26,138,90,0.3)]">
                       {x.discount}%
                     </span>
                   </td>
                   <td className="px-3 py-[11px] whitespace-nowrap">
                     <span
-                      className={`inline-flex items-center rounded px-2 py-0.5 text-[10px] font-mono border ${
+                      className={`inline-flex items-center rounded px-2 py-0.5 text-[10px] font-sans border ${
                         x.planType === "normal"
                           ? "bg-blue-dim text-blue border-[rgba(30,111,217,0.3)]"
                           : x.planType === "event"
@@ -236,7 +236,7 @@ export default function PaymentPlanForm({
       )}
 
       <div className="p-[14px_16px] bg-surface border border-border rounded-[6px]">
-        <div className="text-[10px] font-mono text-navy-light tracking-[1.5px] uppercase mb-3">
+        <div className="text-[10px] font-sans text-navy-light tracking-[1.5px] uppercase mb-3">
           {editingId ? "EDITING PLAN" : "ADD PLAN"}
         </div>
 
@@ -315,7 +315,7 @@ export default function PaymentPlanForm({
 
         {(pp.planType === "event" || pp.planType === "both") && (
           <div className="p-[10px_12px] bg-[rgba(200,100,10,0.08)] rounded-[6px] border border-[rgba(200,100,10,0.2)] mb-2.5">
-            <div className="text-[10px] font-mono text-orange tracking-[1px] uppercase mb-2">
+            <div className="text-[10px] font-sans text-orange tracking-[1px] uppercase mb-2">
               Event Version
             </div>
             <div className="flex gap-2.5 flex-wrap">
@@ -377,7 +377,7 @@ export default function PaymentPlanForm({
 
         {showClone && (
           <div className="p-[14px] bg-surface border border-border rounded-[6px] mt-3">
-            <div className="text-[10px] font-mono text-navy-light tracking-[1.5px] uppercase mb-2.5">
+            <div className="text-[10px] font-sans text-navy-light tracking-[1.5px] uppercase mb-2.5">
               Select Plans to Clone (multi-select)
             </div>
             <div className="mb-3">

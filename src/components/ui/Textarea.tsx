@@ -21,7 +21,7 @@ export function Textarea({
       {label && (
         <label
           htmlFor={textareaId}
-          className="block text-[10px] text-navy-light tracking-[1.6px] uppercase font-mono mb-1.5"
+          className="block text-[10px] text-navy-light tracking-[1.6px] uppercase font-sans mb-1.5"
         >
           {label}
         </label>

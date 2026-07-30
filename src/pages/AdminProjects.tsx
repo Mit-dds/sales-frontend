@@ -173,15 +173,15 @@ export default function AdminProjects() {
       </div>
 
       {loading && mergedProjects.length === 0 ? (
-        <div className="text-center py-12 text-sm text-navy-dim font-mono">
+        <div className="text-center py-12 text-sm text-navy-dim font-sans">
           Loading projects...
         </div>
       ) : error && mergedProjects.length === 0 ? (
-        <div className="text-center py-12 text-sm text-red font-mono">
+        <div className="text-center py-12 text-sm text-red font-sans">
           Error: {error}
         </div>
       ) : mergedProjects.length === 0 ? (
-        <div className="text-center py-12 text-sm text-navy-dim font-mono">
+        <div className="text-center py-12 text-sm text-navy-dim font-sans">
           No projects found.
         </div>
       ) : (
@@ -211,7 +211,7 @@ export default function AdminProjects() {
                     {p.name}
                   </div>
                   <span
-                    className={`inline-flex items-center rounded px-2 py-0.5 text-[10px] font-mono border ${
+                    className={`inline-flex items-center rounded px-2 py-0.5 text-[10px] font-sans border ${
                       p.status === "Off-plan"
                         ? "bg-[rgba(201,168,76,0.05)] text-[#C9A84C] border-[rgba(201,168,76,0.3)]"
                         : "bg-green-dim text-green border-[rgba(26,138,90,0.3)]"
@@ -240,7 +240,7 @@ export default function AdminProjects() {
                     style={{ background: p.secondaryColor || "#aaa" }}
                   />
                   {whyBuyCount > 0 && (
-                    <span className="inline-flex items-center rounded px-2 py-0.5 text-[10px] font-mono border bg-green-dim text-green border-[rgba(26,138,90,0.3)]">
+                    <span className="inline-flex items-center rounded px-2 py-0.5 text-[10px] font-sans border bg-green-dim text-green border-[rgba(26,138,90,0.3)]">
                       {whyBuyCount} pts
                     </span>
                   )}

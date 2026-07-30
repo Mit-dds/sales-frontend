@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import type { Project, UnitType, FloorPlan } from "@/types";
 import { parseCompletionDate, getHandoverMonths } from "@/domain/dates";
-import { generateWhyBuyPoints } from "@/domain/whyBuy/generate";
 import { Card, Button } from "@/components/ui";
 import UnitTypeEditor from "./UnitTypeEditor";
 import { useProjectStore } from "@/lib/store/useProjectStore";
@@ -60,7 +59,7 @@ function F({
 }) {
   return (
     <div className={flex ? "flex-1 min-w-0" : "mb-4"}>
-      <label className="block text-[10px] font-mono text-navy-light tracking-[1.6px] uppercase mb-1.5">
+      <label className="block text-[10px] font-sans text-navy-light tracking-[1.6px] uppercase mb-1.5">
         {lbl}
       </label>
       {children}
@@ -141,7 +140,7 @@ export default function ProjectForm({
             const backendUTs = response.data.data.unitTypes;
             const mapped: UnitType[] = backendUTs.map((ut: any) => {
               const subtypesList = (ut.subtypes || []).map((s: any) => s.label);
-              
+
               const floorPlansMap: Record<string, FloorPlan> = {};
               (ut.subtypes || []).forEach((s: any) => {
                 if (s.hasFloorPlan) {
@@ -305,9 +304,7 @@ export default function ProjectForm({
             name: proj.masterPlanName || "Master Plan",
             dataUrl: getFileUrl(proj.masterPlanPath) || "",
             isImage:
-              proj.masterPlanIsImage !== null
-                ? !!proj.masterPlanIsImage
-                : true,
+              proj.masterPlanIsImage !== null ? !!proj.masterPlanIsImage : true,
           }
         : proj.masterPlan || p.masterPlan,
     };
@@ -409,7 +406,10 @@ export default function ProjectForm({
               updatedProject = uploadRes.data.data.project;
             }
           } catch (uploadErr) {
-            console.error("Failed to upload hero image after project creation:", uploadErr);
+            console.error(
+              "Failed to upload hero image after project creation:",
+              uploadErr,
+            );
           }
         }
 
@@ -420,14 +420,21 @@ export default function ProjectForm({
             const uploadRes = await apiClient.post<{
               success: boolean;
               data: { project: any };
-            }>(`projects/${createdProject.id}/upload?type=master-plan`, formData, {
-              headers: { "Content-Type": "multipart/form-data" },
-            });
+            }>(
+              `projects/${createdProject.id}/upload?type=master-plan`,
+              formData,
+              {
+                headers: { "Content-Type": "multipart/form-data" },
+              },
+            );
             if (uploadRes.data.success) {
               updatedProject = uploadRes.data.data.project;
             }
           } catch (uploadErr) {
-            console.error("Failed to upload master plan after project creation:", uploadErr);
+            console.error(
+              "Failed to upload master plan after project creation:",
+              uploadErr,
+            );
           }
         }
 
@@ -500,8 +507,6 @@ export default function ProjectForm({
     file: File | null,
   ) => {
     if (!file) return;
-
-
 
     if (isNew) {
       if (key === "heroImage") {
@@ -599,8 +604,6 @@ export default function ProjectForm({
       u(key, null);
     }
   };
-
-
 
   return (
     <div>
@@ -749,7 +752,7 @@ export default function ProjectForm({
           </F>
 
           <div className="p-[14px_16px] bg-surface border border-border rounded-[6px] mb-4">
-            <div className="text-[10px] font-mono text-navy-light tracking-[1.5px] uppercase mb-3">
+            <div className="text-[10px] font-sans text-navy-light tracking-[1.5px] uppercase mb-3">
               Registration & Fees
             </div>
             <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
@@ -805,12 +808,12 @@ export default function ProjectForm({
           </div>
 
           <div className="p-[14px_16px] bg-surface border border-border rounded-[6px] mb-4">
-            <div className="text-[10px] font-mono text-navy-light tracking-[1.5px] uppercase mb-3">
+            <div className="text-[10px] font-sans text-navy-light tracking-[1.5px] uppercase mb-3">
               Brand Colors
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-stretch">
               <div>
-                <div className="text-[10px] font-mono text-navy-light tracking-[1.6px] uppercase mb-1.5">
+                <div className="text-[10px] font-sans text-navy-light tracking-[1.6px] uppercase mb-1.5">
                   Primary
                 </div>
                 <div className="flex items-center gap-2">
@@ -828,7 +831,7 @@ export default function ProjectForm({
                 </div>
               </div>
               <div>
-                <div className="text-[10px] font-mono text-navy-light tracking-[1.6px] uppercase mb-1.5">
+                <div className="text-[10px] font-sans text-navy-light tracking-[1.6px] uppercase mb-1.5">
                   Secondary
                 </div>
                 <div className="flex items-center gap-2">
@@ -846,7 +849,7 @@ export default function ProjectForm({
                 </div>
               </div>
               <div className="flex flex-col justify-end">
-                <div className="text-[10px] font-mono text-navy-light tracking-[1.6px] uppercase mb-1.5">
+                <div className="text-[10px] font-sans text-navy-light tracking-[1.6px] uppercase mb-1.5">
                   Preview
                 </div>
                 <div
@@ -860,7 +863,7 @@ export default function ProjectForm({
           </div>
 
           <div className="mb-4">
-            <div className="text-[10px] font-mono text-navy-light tracking-[1.6px] uppercase mb-1.5">
+            <div className="text-[10px] font-sans text-navy-light tracking-[1.6px] uppercase mb-1.5">
               DP Split Options Available to Agents
             </div>
             <div className="text-[11px] text-navy-dim mb-2.5">
@@ -873,7 +876,7 @@ export default function ProjectForm({
                   <div
                     key={n}
                     onClick={() => toggleSplit(n)}
-                    className="px-4 py-2 rounded-[6px] cursor-pointer font-mono text-xs text-center min-w-[44px]"
+                    className="px-4 py-2 rounded-[6px] cursor-pointer font-sans text-xs text-center min-w-[44px]"
                     style={{
                       border: selected
                         ? `2px solid ${pc}`
@@ -910,7 +913,7 @@ export default function ProjectForm({
 
           <div className="flex gap-4 mb-4">
             <div className="flex-1">
-              <div className="text-[10px] font-mono text-navy-light tracking-[1.6px] uppercase mb-1.5">
+              <div className="text-[10px] font-sans text-navy-light tracking-[1.6px] uppercase mb-1.5">
                 Booking Token (AED) &mdash; Day 0
               </div>
               <input
@@ -974,12 +977,12 @@ export default function ProjectForm({
                       </div>
                       <div className="flex gap-1 flex-col items-end">
                         <span
-                          className={`inline-flex items-center rounded px-2 py-0.5 text-[10px] font-mono border ${fpCount > 0 ? "bg-green-dim text-green border-[rgba(26,138,90,0.3)]" : "bg-red-dim text-red border-[rgba(192,57,43,0.3)]"}`}
+                          className={`inline-flex items-center rounded px-2 py-0.5 text-[10px] font-sans border ${fpCount > 0 ? "bg-green-dim text-green border-[rgba(26,138,90,0.3)]" : "bg-red-dim text-red border-[rgba(192,57,43,0.3)]"}`}
                         >
                           {fpCount > 0 ? `${fpCount} FP` : "No FP"}
                         </span>
                         <span
-                          className={`inline-flex items-center rounded px-2 py-0.5 text-[10px] font-mono border ${ppCount > 0 ? "bg-blue-dim text-blue border-[rgba(30,111,217,0.3)]" : "bg-orange-dim text-orange border-[rgba(200,100,10,0.3)]"}`}
+                          className={`inline-flex items-center rounded px-2 py-0.5 text-[10px] font-sans border ${ppCount > 0 ? "bg-blue-dim text-blue border-[rgba(30,111,217,0.3)]" : "bg-orange-dim text-orange border-[rgba(200,100,10,0.3)]"}`}
                         >
                           {ppCount > 0 ? `${ppCount} plans` : "No plans"}
                         </span>
@@ -989,12 +992,17 @@ export default function ProjectForm({
                       <button
                         onClick={async (e) => {
                           e.stopPropagation();
-                          const isBackend = p.id && (p.id.startsWith("cm") || p.id.length > 5);
-                          const isBackendUt = ut.id && (ut.id.startsWith("cm") || ut.id.length > 5);
+                          const isBackend =
+                            p.id && (p.id.startsWith("cm") || p.id.length > 5);
+                          const isBackendUt =
+                            ut.id &&
+                            (ut.id.startsWith("cm") || ut.id.length > 5);
 
                           if (isBackend && isBackendUt) {
                             try {
-                              const loadingId = toast.loading("Loading fresh unit type details...");
+                              const loadingId = toast.loading(
+                                "Loading fresh unit type details...",
+                              );
                               const res = await apiClient.get<{
                                 success: boolean;
                                 data: { unitType: any };
@@ -1003,8 +1011,11 @@ export default function ProjectForm({
 
                               if (res.data.success) {
                                 const backendUt = res.data.data.unitType;
-                                const subtypesList = (backendUt.subtypes || []).map((st: any) => st.label);
-                                const floorPlansMap: Record<string, FloorPlan> = {};
+                                const subtypesList = (
+                                  backendUt.subtypes || []
+                                ).map((st: any) => st.label);
+                                const floorPlansMap: Record<string, FloorPlan> =
+                                  {};
                                 const getFileUrl = (path: string) => {
                                   if (path && !path.startsWith("http")) {
                                     let backendRoot = (
@@ -1022,18 +1033,23 @@ export default function ProjectForm({
                                   }
                                   return path;
                                 };
-                                (backendUt.subtypes || []).forEach((st: any) => {
-                                  if (st.floorPlanPath) {
-                                    floorPlansMap[st.label] = {
-                                      name: st.floorPlanName || `${st.label} Floor Plan`,
-                                      dataUrl: getFileUrl(st.floorPlanPath) || "",
-                                      isImage:
-                                        st.floorPlanIsImage !== null
-                                          ? !!st.floorPlanIsImage
-                                          : true,
-                                    };
-                                  }
-                                });
+                                (backendUt.subtypes || []).forEach(
+                                  (st: any) => {
+                                    if (st.floorPlanPath) {
+                                      floorPlansMap[st.label] = {
+                                        name:
+                                          st.floorPlanName ||
+                                          `${st.label} Floor Plan`,
+                                        dataUrl:
+                                          getFileUrl(st.floorPlanPath) || "",
+                                        isImage:
+                                          st.floorPlanIsImage !== null
+                                            ? !!st.floorPlanIsImage
+                                            : true,
+                                      };
+                                    }
+                                  },
+                                );
 
                                 const mappedUt: UnitType = {
                                   id: backendUt.id,
@@ -1052,7 +1068,10 @@ export default function ProjectForm({
                                 }));
                               }
                             } catch (err: any) {
-                              toast.error(err.message || "Failed to load unit type from server");
+                              toast.error(
+                                err.message ||
+                                  "Failed to load unit type from server",
+                              );
                             }
                           }
 
@@ -1065,12 +1084,17 @@ export default function ProjectForm({
                       <button
                         onClick={async (e) => {
                           e.stopPropagation();
-                          const isBackend = p.id && (p.id.startsWith("cm") || p.id.length > 5);
-                          const isBackendUt = ut.id && (ut.id.startsWith("cm") || ut.id.length > 5);
+                          const isBackend =
+                            p.id && (p.id.startsWith("cm") || p.id.length > 5);
+                          const isBackendUt =
+                            ut.id &&
+                            (ut.id.startsWith("cm") || ut.id.length > 5);
 
                           if (isBackend && isBackendUt) {
                             try {
-                              const loadingId = toast.loading("Deleting unit type on server...");
+                              const loadingId = toast.loading(
+                                "Deleting unit type on server...",
+                              );
                               const res = await apiClient.delete<{
                                 success: boolean;
                                 message: string;
@@ -1126,7 +1150,7 @@ export default function ProjectForm({
       {tab === "masterplan" && (
         <div className="space-y-4">
           <Card padding="p-6">
-            <div className="text-[10px] font-mono text-navy-light tracking-[1.5px] uppercase mb-1.5">
+            <div className="text-[10px] font-sans text-navy-light tracking-[1.5px] uppercase mb-1.5">
               Hero Image
             </div>
             <div className="text-[12px] text-navy-dim mb-2.5">
@@ -1165,43 +1189,45 @@ export default function ProjectForm({
           </Card>
 
           <Card padding="p-6">
-            <div className="text-[10px] font-mono text-navy-light tracking-[1.5px] uppercase mb-1.5">
+            <div className="text-[10px] font-sans text-navy-light tracking-[1.5px] uppercase mb-1.5">
               Master Plan
             </div>
             <div className="text-[12px] text-navy-dim mb-4">
               One master plan per project shown at end of every offer.
             </div>
             {p.masterPlan ? (
-              <div className="flex items-center gap-3.5 p-[14px_16px] bg-green-dim border border-[rgba(26,138,90,0.2)] rounded-[6px]">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3.5 p-[14px_16px] bg-green-dim border border-[rgba(26,138,90,0.2)] rounded-[6px]">
                 <div className="flex-1">
-                  <div className="text-[13px] text-navy font-medium">
+                  <div className="text-[13px] text-navy font-medium break-all">
                     {p.masterPlan.name}
                   </div>
                   <div className="text-[11px] text-green mt-0.5">
                     Master plan uploaded
                   </div>
                 </div>
-                <label className="inline-flex items-center h-[34px] px-3 rounded-[6px] border border-border text-[12px] text-navy cursor-pointer bg-white hover:bg-surface">
-                  Replace
-                  <input
-                    type="file"
-                    accept=".pdf,.jpg,.jpeg,.png"
-                    className="hidden"
-                    onChange={(e) =>
-                      handleFileUpload(
-                        "masterPlan",
-                        e.target.files?.[0] || null,
-                      )
-                    }
-                  />
-                </label>
-                <button
-                  type="button"
-                  onClick={() => handleFileRemove("masterPlan")}
-                  className="h-[34px] px-3 rounded-[6px] text-xs font-semibold cursor-pointer text-red hover:bg-red-dim transition-colors"
-                >
-                  Remove
-                </button>
+                <div className="flex gap-2.5 items-center justify-end">
+                  <label className="inline-flex items-center justify-center h-[34px] px-3 rounded-[6px] border border-border text-[12px] text-navy cursor-pointer bg-white hover:bg-surface whitespace-nowrap">
+                    Replace
+                    <input
+                      type="file"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      className="hidden"
+                      onChange={(e) =>
+                        handleFileUpload(
+                          "masterPlan",
+                          e.target.files?.[0] || null,
+                        )
+                      }
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => handleFileRemove("masterPlan")}
+                    className="h-[34px] px-3 rounded-[6px] text-xs font-semibold cursor-pointer text-red hover:bg-red-dim transition-colors whitespace-nowrap"
+                  >
+                    Remove
+                  </button>
+                </div>
               </div>
             ) : (
               <label className="block border-2 border-dashed border-border rounded-[6px] p-8 text-center cursor-pointer bg-surface">
@@ -1228,18 +1254,20 @@ export default function ProjectForm({
 
       {/* Why Buy */}
       {tab === "why" && (
-        <Card padding="p-6">
+        <Card padding="p-4 md:p-6">
           <div className="flex items-center justify-between mb-3">
-            <div className="text-[10px] font-mono text-navy-light tracking-[1.5px] uppercase">
+            <div className="text-[10px] font-sans text-navy-light tracking-[1.5px] uppercase">
               Why Buy Highlights
             </div>
-            <button
+            {/* <button
               onClick={async () => {
                 if (isNew) {
                   const generated = generateWhyBuyPoints(p);
                   setP((prev) => {
                     const current = prev.whyBuy || [];
-                    const filtered = generated.filter((g) => !current.includes(g));
+                    const filtered = generated.filter(
+                      (g) => !current.includes(g),
+                    );
                     return {
                       ...prev,
                       whyBuy: [...current, ...filtered],
@@ -1247,7 +1275,9 @@ export default function ProjectForm({
                   });
                   toast.success(`${generated.length} highlights generated`);
                 } else {
-                  const loadingId = toast.loading("Generating AI highlights...");
+                  const loadingId = toast.loading(
+                    "Generating AI highlights...",
+                  );
                   try {
                     const response = await apiClient.get<{
                       success: boolean;
@@ -1258,13 +1288,17 @@ export default function ProjectForm({
                       const suggestions = response.data.data.suggestions || [];
                       setP((prev) => {
                         const current = prev.whyBuy || [];
-                        const filtered = suggestions.filter((s) => !current.includes(s));
+                        const filtered = suggestions.filter(
+                          (s) => !current.includes(s),
+                        );
                         return {
                           ...prev,
                           whyBuy: [...current, ...filtered],
                         };
                       });
-                      toast.success(`${suggestions.length} highlights generated`);
+                      toast.success(
+                        `${suggestions.length} highlights generated`,
+                      );
                     }
                   } catch (err: any) {
                     toast.dismiss(loadingId);
@@ -1279,7 +1313,7 @@ export default function ProjectForm({
               className="h-[32px] px-3 rounded-[6px] text-xs font-semibold cursor-pointer border border-border text-navy-light bg-white hover:bg-surface"
             >
               Re-generate with AI
-            </button>
+            </button> */}
           </div>
           {p.whyBuy.map((pt, i) => (
             <div

@@ -64,13 +64,13 @@ export function GhostUnitModal({
   };
 
   const lblStyle =
-    "block text-[10px] font-mono text-navy-light tracking-[1.6px] uppercase mb-1.5";
+    "block text-[10px] font-sans text-navy-light tracking-[1.6px] uppercase mb-1.5";
   const inpStyle =
     "w-full bg-[#F8FAFF] border border-border rounded-[6px] text-navy px-3.5 py-2.5 text-[13px] outline-none focus:border-blue transition-colors";
 
   const titleNode = (
     <div>
-      <div className="text-[10px] font-mono text-gold tracking-[1.5px] mb-1">
+      <div className="text-[10px] font-sans text-gold tracking-[1.5px] mb-1">
         GHOST UNIT
       </div>
       <div className="font-serif text-[22px] font-semibold text-navy">

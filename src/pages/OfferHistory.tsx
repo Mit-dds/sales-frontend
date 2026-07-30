@@ -134,7 +134,7 @@ export default function OfferHistory() {
             >
               {value}
             </div>
-            <div className="text-[10px] text-navy-dim font-mono tracking-[1px] mt-1 uppercase">
+            <div className="text-[10px] text-navy-dim font-sans tracking-[1px] mt-1 uppercase">
               {label}
             </div>
           </div>
@@ -222,26 +222,26 @@ export default function OfferHistory() {
                 <thead>
                   <tr className="bg-surface">
                     {isAdmin && (
-                      <th className="px-3 py-[9px] text-left text-[10px] text-navy-light font-mono tracking-[1.4px] uppercase border-b-2 border-border">
+                      <th className="px-3 py-[9px] text-left text-[10px] text-navy-light font-sans tracking-[1.4px] uppercase border-b-2 border-border">
                         Agent
                       </th>
                     )}
-                    <th className="px-3 py-[9px] text-left text-[10px] text-navy-light font-mono tracking-[1.4px] uppercase border-b-2 border-border">
+                    <th className="px-3 py-[9px] text-left text-[10px] text-navy-light font-sans tracking-[1.4px] uppercase border-b-2 border-border">
                       Date
                     </th>
-                    <th className="px-3 py-[9px] text-left text-[10px] text-navy-light font-mono tracking-[1.4px] uppercase border-b-2 border-border">
+                    <th className="px-3 py-[9px] text-left text-[10px] text-navy-light font-sans tracking-[1.4px] uppercase border-b-2 border-border">
                       Client
                     </th>
-                    <th className="px-3 py-[9px] text-left text-[10px] text-navy-light font-mono tracking-[1.4px] uppercase border-b-2 border-border">
+                    <th className="px-3 py-[9px] text-left text-[10px] text-navy-light font-sans tracking-[1.4px] uppercase border-b-2 border-border">
                       Project
                     </th>
-                    <th className="px-3 py-[9px] text-left text-[10px] text-navy-light font-mono tracking-[1.4px] uppercase border-b-2 border-border">
+                    <th className="px-3 py-[9px] text-left text-[10px] text-navy-light font-sans tracking-[1.4px] uppercase border-b-2 border-border">
                       Unit
                     </th>
-                    <th className="px-3 py-[9px] text-left text-[10px] text-navy-light font-mono tracking-[1.4px] uppercase border-b-2 border-border">
+                    <th className="px-3 py-[9px] text-left text-[10px] text-navy-light font-sans tracking-[1.4px] uppercase border-b-2 border-border">
                       Plan
                     </th>
-                    <th className="px-3 py-[9px] text-left text-[10px] text-navy-light font-mono tracking-[1.4px] uppercase border-b-2 border-border">
+                    <th className="px-3 py-[9px] text-left text-[10px] text-navy-light font-sans tracking-[1.4px] uppercase border-b-2 border-border">
                       Net Price
                     </th>
                   </tr>
@@ -260,7 +260,7 @@ export default function OfferHistory() {
                           </div>
                         </td>
                       )}
-                      <td className="px-3 py-[11px] text-[11px] text-navy-light font-mono whitespace-nowrap">
+                      <td className="px-3 py-[11px] text-[11px] text-navy-light font-sans whitespace-nowrap">
                         {new Date(h.date).toLocaleDateString("en-AE", {
                           day: "2-digit",
                           month: "short",
@@ -278,7 +278,7 @@ export default function OfferHistory() {
                       <td className="px-3 py-[11px] text-[13px] text-navy">
                         {h.projectName}
                       </td>
-                      <td className="px-3 py-[11px] text-[13px] text-gold font-mono">
+                      <td className="px-3 py-[11px] text-[13px] text-gold font-sans">
                         {h.unitNumber}
                       </td>
                       <td className="px-3 py-[11px] text-[12px] text-navy-light">
@@ -308,7 +308,7 @@ export default function OfferHistory() {
                 >
                   Previous
                 </button>
-                <span className="px-3 py-1.5 text-[12px] font-mono text-navy">
+                <span className="px-3 py-1.5 text-[12px] font-sans text-navy">
                   {pagination.page} / {pagination.totalPages}
                 </span>
                 <button

@@ -1617,7 +1617,7 @@ export default function NewOffer() {
   const selS =
     "w-full h-[38px] px-3 rounded-[6px] border border-border text-[13px] text-navy bg-white outline-none focus:border-blue";
   const lbl =
-    "block text-[10px] font-mono text-navy-light tracking-[1.6px] uppercase mb-1.5";
+    "block text-[10px] font-sans text-navy-light tracking-[1.6px] uppercase mb-1.5";
 
   return (
     <div>
@@ -1638,8 +1638,10 @@ export default function NewOffer() {
             return (
               <div
                 key={i}
-                onClick={isClickable ? () => handleGoToStep(stepNum) : undefined}
-                className={`flex-1 text-center p-[8px_4px] text-[11px] font-mono tracking-[1px] whitespace-nowrap ${
+                onClick={
+                  isClickable ? () => handleGoToStep(stepNum) : undefined
+                }
+                className={`flex-1 text-center p-[8px_4px] text-[11px] font-sans tracking-[1px] whitespace-nowrap ${
                   isClickable ? "hover:opacity-80 transition-opacity" : ""
                 }`}
                 style={{
@@ -1659,7 +1661,9 @@ export default function NewOffer() {
               >
                 {step > stepNum ? "✓ " : ""}
                 {stepNum}.{" "}
-                <span className={step === stepNum ? "inline" : "hidden sm:inline"}>
+                <span
+                  className={step === stepNum ? "inline" : "hidden sm:inline"}
+                >
                   {s}
                 </span>
               </div>
@@ -1670,12 +1674,12 @@ export default function NewOffer() {
 
       {/* Loading states for restored session */}
       {step > 1 && !proj && loadingProjects && (
-        <div className="text-center py-12 text-navy-dim text-[13px] font-mono animate-pulse">
+        <div className="text-center py-12 text-navy-dim text-[13px] font-sans animate-pulse">
           Loading your session...
         </div>
       )}
       {step > 2 && proj && !unit && loadingUnits && (
-        <div className="text-center py-12 text-navy-dim text-[13px] font-mono animate-pulse">
+        <div className="text-center py-12 text-navy-dim text-[13px] font-sans animate-pulse">
           Loading unit details...
         </div>
       )}
@@ -1687,7 +1691,7 @@ export default function NewOffer() {
         offerMode !== "recovery" &&
         offerMode !== "comparison" &&
         offerMode !== "allplans" && (
-          <div className="text-center py-12 text-navy-dim text-[13px] font-mono animate-pulse">
+          <div className="text-center py-12 text-navy-dim text-[13px] font-sans animate-pulse">
             Loading payment plans...
           </div>
         )}
@@ -1699,7 +1703,7 @@ export default function NewOffer() {
             Click a project to select it
           </div>
           {loadingProjects ? (
-            <div className="text-center py-12 text-navy-dim text-[13px] font-mono animate-pulse">
+            <div className="text-center py-12 text-navy-dim text-[13px] font-sans animate-pulse">
               Loading projects...
             </div>
           ) : (
@@ -1713,7 +1717,7 @@ export default function NewOffer() {
                 <div
                   key={p.id}
                   onClick={() => handleSelectProject(p)}
-                  className="p-[24px_28px] rounded-[10px] border border-border shadow-[0_2px_8px_rgba(30,60,120,0.06)] cursor-pointer transition-all duration-150"
+                  className="p-[16px_20px] md:p-[24px_28px] rounded-[10px] border border-border shadow-[0_2px_8px_rgba(30,60,120,0.06)] cursor-pointer transition-all duration-150"
                   style={{
                     background: "#fff",
                     borderTop: `3px solid ${p.primaryColor || "#B8860B"}`,
@@ -1774,14 +1778,14 @@ export default function NewOffer() {
           </button>
 
           <div
-            className="p-[14px_20px] rounded-[10px] border border-border mb-4 shadow-[0_2px_8px_rgba(30,60,120,0.06)]"
+            className="p-[14px_16px] rounded-[10px] border border-border mb-4 shadow-[0_2px_8px_rgba(30,60,120,0.06)]"
             style={{ background: "#fff" }}
           >
-            <div className="flex gap-4 flex-wrap items-center mb-2.5">
+            <div className="flex gap-4 flex-wrap items-center justify-between mb-2.5">
               <div className="font-serif text-[18px] text-navy">
                 {proj.name}
               </div>
-              <span className="inline-flex items-center rounded px-2.5 py-0.5 text-[11px] font-mono border bg-gold-dim text-gold border-[rgba(184,134,11,0.3)]">
+              <span className="inline-flex items-center rounded px-2.5 py-0.5 text-[11px] font-sans border bg-gold-dim text-gold border-[rgba(184,134,11,0.3)]">
                 {loadingUnits
                   ? "Loading..."
                   : `${unitsPagination.total} units available`}
@@ -1861,7 +1865,7 @@ export default function NewOffer() {
                           );
                           setSortCol(col);
                         }}
-                        className="px-3 py-[9px] text-left text-[10px] tracking-[1.4px] uppercase font-mono border-b-2 border-border"
+                        className="px-3 py-[9px] text-left text-[10px] tracking-[1.4px] uppercase font-sans border-b-2 border-border"
                         style={{
                           color: isSort ? "#B8860B" : "#4A5880",
                           cursor: col ? "pointer" : "default",
@@ -1944,7 +1948,7 @@ export default function NewOffer() {
                       }}
                     >
                       <td
-                        className="px-3 py-[11px] text-[13px] font-mono font-semibold"
+                        className="px-3 py-[11px] text-[13px] font-sans font-semibold"
                         style={{ color: pc }}
                       >
                         {u.number}
@@ -1982,7 +1986,7 @@ export default function NewOffer() {
           {/* Pagination */}
           {unitsPagination.totalPages > 1 && (
             <div className="flex flex-col sm:flex-row items-center justify-between mt-4 px-2 gap-3">
-              <div className="text-[12px] text-navy-dim font-mono">
+              <div className="text-[12px] text-navy-dim font-sans">
                 Showing {(unitsPagination.page - 1) * unitsPagination.limit + 1}
                 –
                 {Math.min(
@@ -2004,7 +2008,7 @@ export default function NewOffer() {
                     );
                   }}
                   disabled={unitsPagination.page <= 1}
-                  className="h-[34px] px-3.5 rounded-[6px] text-[12px] font-mono cursor-pointer border border-border text-navy bg-white hover:bg-surface disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="h-[34px] px-3.5 rounded-[6px] text-[12px] font-sans cursor-pointer border border-border text-navy bg-white hover:bg-surface disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   ← Prev
                 </button>
@@ -2038,7 +2042,7 @@ export default function NewOffer() {
                       return (
                         <span
                           key={`ell-${i}`}
-                          className="px-1 text-navy-dim font-mono text-[12px]"
+                          className="px-1 text-navy-dim font-sans text-[12px]"
                         >
                           ...
                         </span>
@@ -2058,7 +2062,7 @@ export default function NewOffer() {
                             unitsPagination.limit,
                           );
                         }}
-                        className={`h-[34px] min-w-[34px] px-2 rounded-[6px] text-[12px] font-mono cursor-pointer border text-center transition-all ${
+                        className={`h-[34px] min-w-[34px] px-2 rounded-[6px] text-[12px] font-sans cursor-pointer border text-center transition-all ${
                           isSelected
                             ? "text-white font-bold border-none"
                             : "border-border text-navy bg-white hover:bg-surface"
@@ -2084,7 +2088,7 @@ export default function NewOffer() {
                     );
                   }}
                   disabled={unitsPagination.page >= unitsPagination.totalPages}
-                  className="h-[34px] px-3.5 rounded-[6px] text-[12px] font-mono cursor-pointer border border-border text-navy bg-white hover:bg-surface disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="h-[34px] px-3.5 rounded-[6px] text-[12px] font-sans cursor-pointer border border-border text-navy bg-white hover:bg-surface disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   Next →
                 </button>
@@ -2147,7 +2151,7 @@ export default function NewOffer() {
                 ["LIST PRICE", fmtAED(unit.price)],
               ].map((d) => (
                 <div key={d[0]}>
-                  <div className="text-[9px] font-mono text-navy-dim tracking-[1px]">
+                  <div className="text-[9px] font-sans text-navy-dim tracking-[1px]">
                     {d[0]}
                   </div>
                   <div className="text-[13px] font-semibold text-navy">
@@ -2156,7 +2160,7 @@ export default function NewOffer() {
                 </div>
               ))}
               {loadingPlans && (
-                <div className="text-[11px] font-mono text-gold ml-auto animate-pulse">
+                <div className="text-[11px] font-sans text-gold ml-auto animate-pulse">
                   Loading plans...
                 </div>
               )}
@@ -2180,7 +2184,9 @@ export default function NewOffer() {
                   setOfferMode(m.id);
                   setPlan(null);
                   setSelectedPlanIds(
-                    m.id === "comparison" ? resolvedPlans.map((p) => p.id) : [],
+                    m.id === "comparison"
+                      ? resolvedPlans.slice(0, 10).map((p) => p.id)
+                      : [],
                   );
                   setIsEvent(m.id === "event");
                 }}
@@ -2206,32 +2212,45 @@ export default function NewOffer() {
           {/* All Plans / Comparison -- Plan Selector */}
           {(offerMode === "allplans" || offerMode === "comparison") && (
             <div
-              className="p-[24px_28px] rounded-[10px] border border-border mb-4 shadow-[0_2px_8px_rgba(30,60,120,0.06)]"
+              className="p-[14px_16px] md:p-[24px_28px] rounded-[10px] border border-border mb-4 shadow-[0_2px_8px_rgba(30,60,120,0.06)]"
               style={{ background: "#fff" }}
             >
-              <div className="text-[10px] font-mono text-navy-light tracking-[1.5px] mb-2.5">
-                {offerMode === "allplans"
-                  ? "SELECT PLANS TO INCLUDE IN PDF:"
-                  : "SELECT PLANS TO COMPARE:"}
+              <div className="flex items-center justify-between mb-2.5">
+                <div className="text-[10px] font-sans text-navy-light tracking-[1.5px]">
+                  {offerMode === "allplans"
+                    ? "SELECT PLANS TO INCLUDE IN PDF:"
+                    : "SELECT PLANS TO COMPARE:"}
+                </div>
+                {selectedPlanIds.length >= 10 && (
+                  <div className="text-[11px] font-sans font-semibold text-red">
+                    Maximum you can select 10 plans at a time
+                  </div>
+                )}
               </div>
               {availPlans.map((p) => {
                 const checked = selectedPlanIds.includes(p.id);
+                const isMaxReached = selectedPlanIds.length >= 10 && !checked;
                 return (
                   <div
                     key={p.id}
-                    onClick={() =>
+                    onClick={() => {
+                      if (isMaxReached) return;
                       setSelectedPlanIds((prev) =>
                         checked
                           ? prev.filter((x) => x !== p.id)
                           : [...prev, p.id],
-                      )
-                    }
-                    className="flex items-center gap-2.5 p-[10px_14px] rounded-[6px] mb-2 cursor-pointer border"
+                      );
+                    }}
+                    className="flex items-center gap-2.5 p-[10px_14px] rounded-[6px] mb-2 border"
                     style={{
                       background: checked
                         ? `rgba(${parseInt(pc.slice(1, 3), 16)},${parseInt(pc.slice(3, 5), 16)},${parseInt(pc.slice(5, 7), 16)},0.08)`
-                        : "#fff",
+                        : isMaxReached
+                          ? "#F8F9FB"
+                          : "#fff",
                       borderColor: checked ? pc : "#D0DCF0",
+                      cursor: isMaxReached ? "not-allowed" : "pointer",
+                      opacity: isMaxReached ? 0.5 : 1,
                     }}
                   >
                     <div
@@ -2333,7 +2352,7 @@ export default function NewOffer() {
                         setPlan(p);
                         setIsEvent(offerMode === "event");
                       }}
-                      className={`py-6 px-7 rounded-[10px] cursor-pointer border-2 border-[rgb(208, 220, 240)] shadow-md transition-all ${
+                      className={`p-[16px_20px] md:py-6 md:px-7 rounded-[10px] cursor-pointer border-2 border-[rgb(208, 220, 240)] shadow-md transition-all ${
                         selected ? "border-2" : "border border-border"
                       }`}
                       style={{
@@ -2347,7 +2366,7 @@ export default function NewOffer() {
                         <div className="text-[13px] font-semibold text-navy">
                           {p.label}
                         </div>
-                        <span className="inline-flex items-center rounded px-2 text-[10px] font-mono border bg-green-dim text-green border-[rgba(26,138,90,0.3)]">
+                        <span className="inline-flex items-center rounded px-1.5 h-[18px] text-[9px] font-sans border bg-green-dim text-green border-[rgba(26,138,90,0.3)] whitespace-nowrap">
                           {effDisc}% OFF
                         </span>
                       </div>
@@ -2392,10 +2411,10 @@ export default function NewOffer() {
           {offerMode === "recovery" && (
             <div>
               <div
-                className="p-[24px_28px] rounded-[10px] border border-border mb-4 shadow-[0_2px_8px_rgba(30,60,120,0.06)]"
+                className="p-[14px_16px] md:p-[24px_28px] rounded-[10px] border border-border mb-4 shadow-[0_2px_8px_rgba(30,60,120,0.06)]"
                 style={{ background: "#fff" }}
               >
-                <div className="text-[10px] font-mono text-navy-light tracking-[1.5px] mb-1.5">
+                <div className="text-[10px] font-sans text-navy-light tracking-[1.5px] mb-1.5">
                   SELECT BASE PLAN
                 </div>
                 <div className="text-[11px] text-navy-dim mb-3">
@@ -2439,13 +2458,13 @@ export default function NewOffer() {
                             {p.label}
                           </div>
                           <div className="flex gap-1.5 flex-wrap">
-                            <span className="inline-flex items-center rounded px-2 py-0.5 text-[10px] font-mono border bg-green-dim text-green border-[rgba(26,138,90,0.3)]">
+                            <span className="inline-flex items-center rounded px-1.5 h-[18px] text-[9px] font-sans border bg-green-dim text-green border-[rgba(26,138,90,0.3)] whitespace-nowrap">
                               {effDisc}% OFF
                             </span>
-                            <span className="inline-flex items-center rounded px-2 py-0.5 text-[10px] font-mono border bg-blue-dim text-blue border-[rgba(30,111,217,0.3)]">
+                            <span className="inline-flex items-center rounded px-1.5 h-[18px] text-[9px] font-sans border bg-blue-dim text-blue border-[rgba(30,111,217,0.3)] whitespace-nowrap">
                               {p.dp}% DP
                             </span>
-                            <span className="inline-flex items-center rounded px-2 py-0.5 text-[10px] font-mono border bg-orange-dim text-orange border-[rgba(200,100,10,0.3)]">
+                            <span className="inline-flex items-center rounded px-1.5 h-[18px] text-[9px] font-sans border bg-orange-dim text-orange border-[rgba(200,100,10,0.3)] whitespace-nowrap">
                               {p.installmentPct}%/mo
                             </span>
                           </div>
@@ -2469,10 +2488,10 @@ export default function NewOffer() {
 
               {recoveryBaseId && (
                 <div
-                  className="p-[24px_28px] rounded-[10px] border border-border mb-4 shadow-[0_2px_8px_rgba(30,60,120,0.06)]"
+                  className="p-[14px_16px] md:p-[24px_28px] rounded-[10px] border border-border mb-4 shadow-[0_2px_8px_rgba(30,60,120,0.06)]"
                   style={{ background: "#fff" }}
                 >
-                  <div className="text-[10px] font-mono text-navy-light tracking-[1.5px] mb-3">
+                  <div className="text-[10px] font-sans text-navy-light tracking-[1.5px] mb-3">
                     RECOVERY PARAMETERS
                   </div>
                   <div className="mb-4">
@@ -2489,7 +2508,7 @@ export default function NewOffer() {
                         <div>
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                              <div className="text-[10px] font-mono text-navy-light tracking-[1.5px] mb-1.5 uppercase">
+                              <div className="text-[10px] font-sans text-navy-light tracking-[1.5px] mb-1.5 uppercase">
                                 REDUCED MONTHLY % (original: {bp.installmentPct}
                                 %/mo)
                               </div>
@@ -2520,7 +2539,7 @@ export default function NewOffer() {
                                 )}
                             </div>
                             <div>
-                              <div className="text-[10px] font-mono text-navy-light tracking-[1.5px] mb-1.5 uppercase">
+                              <div className="text-[10px] font-sans text-navy-light tracking-[1.5px] mb-1.5 uppercase">
                                 RECOVERY FREQUENCY
                               </div>
                               <select
@@ -2576,10 +2595,10 @@ export default function NewOffer() {
                             borderColor: "rgba(184,134,11,0.2)",
                           }}
                         >
-                          <div className="text-[9px] font-mono text-gold tracking-[1.5px] mb-2">
+                          <div className="text-[9px] font-sans text-gold tracking-[1.5px] mb-2">
                             STRUCTURE PREVIEW
                           </div>
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                             <div>
                               <div className="text-[9px] text-navy-dim">
                                 MONTHLY
@@ -2603,7 +2622,7 @@ export default function NewOffer() {
                                 recovery
                               </div>
                             </div>
-                            <div>
+                            <div className="col-span-2 sm:col-span-1">
                               <div className="text-[9px] text-navy-dim">
                                 LAST 6 MONTHS
                               </div>
@@ -2649,25 +2668,25 @@ export default function NewOffer() {
 
               {recoverySchedule && (
                 <div
-                  className="p-[24px_28px] rounded-[10px] border border-border mb-4 shadow-[0_2px_8px_rgba(30,60,120,0.06)]"
+                  className="p-[14px_16px] md:p-[24px_28px] rounded-[10px] border border-border mb-4 shadow-[0_2px_8px_rgba(30,60,120,0.06)]"
                   style={{ background: "#fff" }}
                 >
                   <div className="flex justify-between items-center mb-3">
-                    <div className="text-[11px] font-mono text-green tracking-[1.5px]">
+                    <div className="text-[11px] font-sans text-green tracking-[1.5px]">
                       AI GENERATED RECOVERY SCHEDULE
                     </div>
-                    <span className="inline-flex items-center rounded px-2 py-0.5 text-[10px] font-mono border bg-green-dim text-green border-[rgba(26,138,90,0.3)]">
+                    <span className="inline-flex items-center rounded px-1.5 h-[18px] text-[9px] font-sans border bg-green-dim text-green border-[rgba(26,138,90,0.3)] whitespace-nowrap">
                       {recoverySchedule.rows.length} payments
                     </span>
                   </div>
-                  <div className="overflow-x-auto border border-border rounded-[8px] mb-3">
+                  <div className="overflow-x-auto border border-border rounded-[8px] mb-0 md:mb-3">
                     <table className="w-full border-collapse">
                       <thead>
                         <tr className="bg-surface">
                           {["#", "MILESTONE", "DATE", "AMOUNT"].map((h) => (
                             <th
                               key={h}
-                              className={`px-3 py-[9px] text-[11px] text-navy-light tracking-[1.4px] uppercase font-mono border-b border-border whitespace-nowrap ${
+                              className={`px-3 py-[9px] text-[11px] text-navy-light tracking-[1.4px] uppercase font-sans border-b border-border whitespace-nowrap ${
                                 h === "AMOUNT" ? "text-right" : "text-left"
                               }`}
                             >
@@ -2709,7 +2728,7 @@ export default function NewOffer() {
                               >
                                 {r.label}
                                 {isRec && (
-                                  <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[8px] font-mono border ml-1.5 bg-green-dim text-green border-[rgba(26,138,90,0.3)] whitespace-nowrap">
+                                  <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[8px] font-sans border ml-1.5 bg-green-dim text-green border-[rgba(26,138,90,0.3)] whitespace-nowrap">
                                     RECOVERY
                                   </span>
                                 )}
@@ -2718,7 +2737,7 @@ export default function NewOffer() {
                                 {r.date ? fmtDate(r.date) : ""}
                               </td>
                               <td
-                                className="px-3 py-[11px] text-[13px] font-semibold text-right font-mono whitespace-nowrap"
+                                className="px-3 py-[11px] text-[13px] font-semibold text-right font-sans whitespace-nowrap"
                                 style={{
                                   color: isRec
                                     ? pc
@@ -2753,10 +2772,10 @@ export default function NewOffer() {
           {/* Payment Structure Preview for Normal/Event */}
           {(offerMode === "normal" || offerMode === "event") && plan && (
             <div
-              className="p-[24px_28px] rounded-[10px] border border-border mb-4 shadow-[0_2px_8px_rgba(30,60,120,0.06)]"
+              className="p-[14px_16px] md:p-[24px_28px] rounded-[10px] border border-border mb-4 shadow-[0_2px_8px_rgba(30,60,120,0.06)]"
               style={{ background: "#fff" }}
             >
-              <div className="text-[10px] font-mono text-navy-light tracking-[1.5px] mb-3">
+              <div className="text-[10px] font-sans text-navy-light tracking-[1.5px] mb-3">
                 PAYMENT STRUCTURE PREVIEW
               </div>
               <PaymentBar
@@ -2807,10 +2826,10 @@ export default function NewOffer() {
           </button>
 
           <div
-            className="p-[24px_28px] rounded-[10px] border border-border mb-4 shadow-[0_2px_8px_rgba(30,60,120,0.06)]"
+            className="p-[14px_16px] md:p-[24px_28px] rounded-[10px] border border-border mb-4 shadow-[0_2px_8px_rgba(30,60,120,0.06)]"
             style={{ background: "#fff" }}
           >
-            <div className="text-[10px] font-mono text-navy-light tracking-[1.5px] mb-4">
+            <div className="text-[10px] font-sans text-navy-light tracking-[1.5px] mb-4">
               OFFER SUMMARY
             </div>
             {[
@@ -2850,7 +2869,7 @@ export default function NewOffer() {
             className="p-[14px_16px] rounded-[10px] border border-border mb-4"
             style={{ background: "#F0F4FA" }}
           >
-            <div className="text-[10px] font-mono text-navy-light tracking-[1.5px] mb-3">
+            <div className="text-[10px] font-sans text-navy-light tracking-[1.5px] mb-3">
               OFFER PARAMETERS
             </div>
             <div className="flex gap-3 flex-wrap">
@@ -2915,7 +2934,7 @@ export default function NewOffer() {
                   placeholder={`Default: ${fmtAED(unit.price)}`}
                 />
                 {priceOverride && +priceOverride > 0 && (
-                  <div className="text-[11px] text-green mt-[3px] font-mono">
+                  <div className="text-[11px] text-green mt-[3px] font-sans">
                     AED {(+priceOverride).toLocaleString("en-US")}
                   </div>
                 )}
@@ -2967,7 +2986,7 @@ export default function NewOffer() {
             className="p-[14px_16px] rounded-[10px] border border-border mb-4"
             style={{ background: "#F0F4FA" }}
           >
-            <div className="text-[10px] font-mono text-navy-light tracking-[1.5px] mb-2.5">
+            <div className="text-[10px] font-sans text-navy-light tracking-[1.5px] mb-2.5">
               AGENT DETAILS ON OFFER
             </div>
             <div className="text-[11px] text-navy-dim mb-2.5">
@@ -3067,7 +3086,7 @@ export default function NewOffer() {
 
           <div className="mb-4">
             <div className={lbl}>ADDITIONAL CURRENCY</div>
-            <div className="flex gap-2 flex-wrap mb-3">
+            <div className="grid grid-cols-4 md:grid-cols-10 gap-2 mb-3">
               {[
                 { code: "", label: "None" },
                 { code: "USD", label: "USD" },
@@ -3099,7 +3118,7 @@ export default function NewOffer() {
                     onClick={() => {
                       setExtraCurrency(c.code);
                     }}
-                    className="px-4 py-2 rounded-[6px] cursor-pointer text-[12px] border"
+                    className="w-full py-2 rounded-[6px] cursor-pointer text-[12px] border text-center font-sans"
                     style={{
                       border: borderStyle,
                       background: bgStyle,
@@ -5332,14 +5351,14 @@ export function AllPlansPreview({
                     marginBottom: 16,
                   }}
                 >
-                  <div className="inline-flex items-center rounded px-2.5 py-1 text-[10px] font-mono border bg-green-dim text-green border-[rgba(26,138,90,0.3)]">
+                  <div className="inline-flex items-center rounded px-1.5 h-[18px] text-[9px] font-sans border bg-green-dim text-green border-[rgba(26,138,90,0.3)] whitespace-nowrap">
                     {off.plan.discount}% OFF
                   </div>
-                  <div className="inline-flex items-center rounded px-2.5 py-1 text-[10px] font-mono border bg-blue-dim text-blue border-[rgba(30,111,217,0.3)]">
+                  <div className="inline-flex items-center rounded px-1.5 h-[18px] text-[9px] font-sans border bg-blue-dim text-blue border-[rgba(30,111,217,0.3)] whitespace-nowrap">
                     {off.plan.dp}% DP
                   </div>
                   {off.plan.installmentPct > 0 && (
-                    <div className="inline-flex items-center rounded px-2.5 py-1 text-[10px] font-mono border bg-orange-dim text-orange border-[rgba(200,100,10,0.3)]">
+                    <div className="inline-flex items-center rounded px-1.5 h-[18px] text-[9px] font-sans border bg-orange-dim text-orange border-[rgba(200,100,10,0.3)] whitespace-nowrap">
                       {off.plan.installmentPct}%/mo
                     </div>
                   )}
@@ -5857,7 +5876,7 @@ function ServerPdfPreview({
               style={{ border: "none", borderRadius: "6px", flex: 1 }}
             />
           ) : (
-            <div className="flex items-center justify-center h-full text-navy-dim text-[13px] font-mono animate-pulse">
+            <div className="flex items-center justify-center h-full text-navy-dim text-[13px] font-sans animate-pulse">
               Loading preview...
             </div>
           )}

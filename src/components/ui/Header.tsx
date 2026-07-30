@@ -36,7 +36,7 @@ export function Header() {
           </button>
         )}
         {user.role === 'admin' && (
-          <span className="text-[9px] bg-orange-dim text-orange border border-[rgba(200,100,10,0.3)] rounded px-2 py-0.5 font-mono hidden xs:block">ADMIN</span>
+          <span className="text-[9px] bg-orange-dim text-orange border border-[rgba(200,100,10,0.3)] rounded px-2 py-0.5 font-sans hidden xs:block">ADMIN</span>
         )}
         <Avatar photo={user.photo} name={user.name} size={32} />
         <span className="hidden sm:block text-[13px] text-navy max-w-[80px] md:max-w-[120px] truncate">{user.name}</span>
