@@ -2185,7 +2185,7 @@ export default function NewOffer() {
                   setPlan(null);
                   setSelectedPlanIds(
                     m.id === "comparison"
-                      ? resolvedPlans.slice(0, 10).map((p) => p.id)
+                      ? resolvedPlans.slice(0, 7).map((p) => p.id)
                       : [],
                   );
                   setIsEvent(m.id === "event");
@@ -2221,15 +2221,15 @@ export default function NewOffer() {
                     ? "SELECT PLANS TO INCLUDE IN PDF:"
                     : "SELECT PLANS TO COMPARE:"}
                 </div>
-                {selectedPlanIds.length >= 10 && (
+                {selectedPlanIds.length >= 7 && (
                   <div className="text-[11px] font-sans font-semibold text-red">
-                    Maximum you can select 10 plans at a time
+                    Maximum you can select 7 plans at a time
                   </div>
                 )}
               </div>
               {availPlans.map((p) => {
                 const checked = selectedPlanIds.includes(p.id);
-                const isMaxReached = selectedPlanIds.length >= 10 && !checked;
+                const isMaxReached = selectedPlanIds.length >= 7 && !checked;
                 return (
                   <div
                     key={p.id}
