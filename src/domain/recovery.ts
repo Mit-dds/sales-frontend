@@ -12,6 +12,7 @@ export interface RecoveryScheduleInput {
   extraDiscount?: number
   split?: number
   day7Input?: number
+  parking?: number
 }
 
 export interface RecoveryScheduleResult {
@@ -35,7 +36,8 @@ export function buildRecoverySchedule(input: RecoveryScheduleInput): RecoverySch
 
   const effPriceRec = (priceOverride && +priceOverride > 0) ? +priceOverride : unit.price
   const totalDiscRec = (basePlan.discount || 0) + (extraDiscount || 0)
-  const netPrice = effPriceRec * (1 - totalDiscRec / 100)
+  const discountedPrice = effPriceRec * (1 - totalDiscRec / 100)
+  const netPrice = discountedPrice + (input.parking || 0)
   const hoMonths = getHandoverMonths(project.completionDate)
   const dpTotal = Math.round(netPrice * basePlan.dp / 100)
   const booking = project.bookingToken || 20000

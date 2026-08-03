@@ -32,14 +32,14 @@ describe('getPlanData', () => {
       hoMonths: 20,
     })
     expect(data.effDisc).toBe(5)
-    expect(data.netPrice).toBe(950000)
+    expect(data.netPrice).toBe(980000)
     expect(data.discAmt).toBe(50000)
-    expect(data.dld).toBe(40194)
+    expect(data.dld).toBe(41394)
     expect(data.utility).toBe(22000)
     expect(data.parking).toBe(30000)
-    expect(data.dpAmt).toBe(95000)
-    expect(data.instMonthly).toBe(9500)
-    expect(data.total).toBeGreaterThan(950000)
+    expect(data.dpAmt).toBe(98000)
+    expect(data.instMonthly).toBe(9800)
+    expect(data.total).toBeGreaterThan(980000)
   })
 
   it('uses event discount when isEvent is true', () => {
@@ -57,7 +57,7 @@ describe('getPlanData', () => {
       isEvent: true,
     })
     expect(data.effDisc).toBe(10)
-    expect(data.netPrice).toBe(900000)
+    expect(data.netPrice).toBe(930000)
   })
 })
 
@@ -72,9 +72,9 @@ describe('buildComparison', () => {
     })
     expect(result).toHaveLength(2)
     expect(result[0].plan.id).toBe('sp1')
-    expect(result[0].data.netPrice).toBe(950000)
+    expect(result[0].data.netPrice).toBe(980000)
     expect(result[1].plan.id).toBe('sp2')
-    expect(result[1].data.netPrice).toBe(925000)
+    expect(result[1].data.netPrice).toBe(955000)
   })
 })
 

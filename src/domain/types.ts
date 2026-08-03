@@ -10,6 +10,7 @@ export interface ScheduleRow {
 export interface PlanData {
   effDisc: number
   netPrice: number
+  discountedPrice: number
   discAmt: number
   dld: number
   utility: number

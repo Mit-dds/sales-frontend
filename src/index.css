@@ -23,6 +23,25 @@
   --font-mono: 'Outfit', sans-serif;
 }
 
+/* Responsive ordering for NewOffer fields: place override under Day 7 on narrow screens */
+@media (max-width: 500px) {
+  .day7-field {
+    order: 1;
+    flex-basis: 100%;
+    min-width: 0;
+  }
+  .override-field {
+    order: 2;
+    flex-basis: 100%;
+    min-width: 0;
+  }
+  .extra-discount-field {
+    order: 3;
+    flex-basis: 100%;
+    min-width: 0;
+  }
+}
+
 @keyframes slide-in-left {
   from { transform: translateX(-100%); }
   to { transform: translateX(0); }

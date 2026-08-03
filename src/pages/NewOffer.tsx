@@ -781,6 +781,7 @@ export default function NewOffer() {
         extraDiscount,
         split,
         day7Input,
+        parking: calcParking(proj, (proj.unitTypes?.find((t) => t.id === unit?.typeId) || unitType) as any),
       });
       if (result) {
         setRecoverySchedule({ ...result, basePlan });
@@ -954,17 +955,18 @@ export default function NewOffer() {
     if (!proj || !unit || !effPlan || !client.trim()) return;
     const effUnitPrice =
       priceOverride && +priceOverride > 0 ? +priceOverride : unit.price;
-    const netPrice = effUnitPrice * (1 - activeDiscount / 100);
+    const discountedPrice = effUnitPrice * (1 - activeDiscount / 100);
     const discountAmt = (effUnitPrice * activeDiscount) / 100;
     const feePct = proj.feePct || 4;
     const feeFixed = proj.feeFixed || 2194;
+    const resolvedUT =
+      proj.unitTypes?.find((t) => t.id === unit.typeId) || unitType || null;
+    const parkingAmt = calcParking(proj, resolvedUT as UnitType);
+    const netPrice = discountedPrice + parkingAmt;
     const regFee = Math.round((netPrice * feePct) / 100) + feeFixed;
     const utilAmt =
       proj.utilityAmount ||
       UTILITY[proj.type === "Townhouses" ? "Townhouses" : "Apartments"];
-    const resolvedUT =
-      proj.unitTypes?.find((t) => t.id === unit.typeId) || unitType || null;
-    const parkingAmt = calcParking(proj, resolvedUT as UnitType);
     const schedule = buildSchedule(
       effPlan,
       netPrice,
@@ -996,6 +998,7 @@ export default function NewOffer() {
       watermark,
       offerDate: new Date().toISOString().split("T")[0],
       netPrice,
+      discountedPrice,
       discountAmt,
       parking: parkingAmt,
       regFee,
@@ -1083,8 +1086,9 @@ export default function NewOffer() {
         (extraDiscount || 0);
       const effUnitPrice2 =
         priceOverride && +priceOverride > 0 ? +priceOverride : unit.price;
-      const netPrice = effUnitPrice2 * (1 - effDisc / 100);
+      const discountedPrice = effUnitPrice2 * (1 - effDisc / 100);
       const discountAmt = (effUnitPrice2 * effDisc) / 100;
+      const netPrice = discountedPrice + parkingAmt;
       const regFee = Math.round((netPrice * feePct) / 100) + feeFixed;
       const schedule = buildSchedule(
         p,
@@ -1104,6 +1108,7 @@ export default function NewOffer() {
           durationMonths: p.durationMonths,
         },
         netPrice,
+        discountedPrice,
         discountAmt,
         regFee,
         utility: utilAmt,
@@ -1287,6 +1292,7 @@ export default function NewOffer() {
       extraDiscount,
       split,
       day7Input,
+      parking: calcParking(proj, (proj.unitTypes?.find((t) => t.id === unit?.typeId) || unitType) as any),
     });
 
     const rows = freshResult ? freshResult.rows : recoverySchedule?.rows || [];
@@ -1330,6 +1336,7 @@ export default function NewOffer() {
       watermark,
       offerDate: today.toISOString().split("T")[0],
       netPrice,
+      discountedPrice: netPrice - parkingAmt,
       discountAmt,
       parking: parkingAmt,
       regFee,
@@ -1461,6 +1468,7 @@ export default function NewOffer() {
         extraDiscount,
         split,
         day7Input,
+        parking: calcParking(proj, (proj.unitTypes?.find((t) => t.id === unit?.typeId) || unitType) as any),
       });
       const rows = freshResult
         ? freshResult.rows
@@ -2835,6 +2843,9 @@ export default function NewOffer() {
             {[
               ["Project", proj.name],
               ["Unit", `${unit.number} - ${unitType?.label || ""}`],
+              ["Internal Area", `${(unit.areaInternal || 0).toLocaleString()} sqft`],
+              ["External Area", `${(unit.areaExternal || 0).toLocaleString()} sqft`],
+              ["Total Area", `${(unit.area || 0).toLocaleString()} sqft`],
               [
                 "Mode",
                 offerMode === "allplans"
@@ -2873,7 +2884,7 @@ export default function NewOffer() {
               OFFER PARAMETERS
             </div>
             <div className="flex gap-3 flex-wrap">
-              <div className="flex-1 min-w-[160px]">
+              <div className="flex-1 min-w-[160px] day7-field">
                 <div className={lbl}>DAY 7 PAYMENT (AED)</div>
                 <input
                   className={inp}
@@ -2924,7 +2935,7 @@ export default function NewOffer() {
                   );
                 })()}
               </div>
-              <div className="flex-1 min-w-[160px]">
+              <div className="flex-1 min-w-[160px] override-field">
                 <div className={lbl}>OVERRIDE UNIT PRICE (AED)</div>
                 <input
                   className={inp}
@@ -2939,7 +2950,7 @@ export default function NewOffer() {
                   </div>
                 )}
               </div>
-              <div className="flex-1 min-w-[160px]">
+              <div className="flex-1 min-w-[160px] extra-discount-field">
                 <div className={lbl}>EXTRA DISCOUNT</div>
                 <select
                   className={selS}
@@ -2963,7 +2974,9 @@ export default function NewOffer() {
           </div>
 
           <div className="mb-4">
-            <div className={lbl}>CLIENT FULL NAME</div>
+            <div className={lbl}>
+              CLIENT FULL NAME <span style={{ color: 'var(--color-red)' }}>*</span>
+            </div>
             <input
               className={inp}
               value={client}
@@ -3197,6 +3210,27 @@ export default function NewOffer() {
             </button> */}
           </div>
 
+          <div className="mt-6 flex justify-between items-center border-t border-border pt-4">
+            <div className="text-left">
+              <div className="text-[10px] text-navy-light uppercase tracking-[1.5px] font-sans">
+                Prepared by
+              </div>
+              <div className="text-[13px] font-bold text-navy mt-0.5">
+                Adil & Shadab Team
+              </div>
+            </div>
+            {user?.name && (
+              <div className="text-right">
+                <div className="text-[10px] text-navy-light uppercase tracking-[1.5px] font-sans">
+                  Agent
+                </div>
+                <div className="text-[13px] font-bold text-navy mt-0.5">
+                  {user.name}
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* {clientPhone && client && (
             <div className="mt-3 text-center">
               <a
@@ -3357,15 +3391,17 @@ export function OfferPreview({
 
   const hoMonths = getHandoverMonths(project.completionDate);
 
-  const milestones = (schedule || []).map((r) => ({
-    label: r.label,
-    date: r.date ? fmtDate(r.date) : "",
-    amount: r.amount,
-    pct: netPrice > 0 ? Math.round((r.amount / netPrice) * 10000) / 100 : 0,
-    type: r.type,
-    isHandover: r.type === "handover",
-    isBooking: r.type === "booking",
-  }));
+  const milestones = (schedule || [])
+    .slice(0, 12)
+    .map((r) => ({
+      label: r.label,
+      date: r.date ? fmtDate(r.date) : "",
+      amount: r.amount,
+      pct: netPrice > 0 ? Math.round((r.amount / netPrice) * 10000) / 100 : 0,
+      type: r.type,
+      isHandover: r.type === "handover",
+      isBooking: r.type === "booking",
+    }));
 
   const fp = (() => {
     const utFps = unitType?.floorPlans || {};
@@ -3411,7 +3447,7 @@ export function OfferPreview({
         <style
           dangerouslySetInnerHTML={{
             __html:
-              "@media print{body,html{margin:0!important;padding:0!important;background:white!important;}#print-root{position:static!important;background:white!important;display:block!important;padding:0!important;overflow:visible!important;width:100%!important;}#offer-toolbar{display:none!important;}#offer-doc{box-shadow:none!important;border-radius:0!important;width:100%!important;max-width:100%!important;margin:0!important;}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}.op{display:block!important;page-break-after:always!important;break-after:page!important;overflow:hidden!important;}.op:last-child{page-break-after:auto!important;break-after:auto!important;}",
+              "@page{size:A4;margin:18mm 12mm;}@media print{body,html{margin:0!important;padding:0!important;background:white!important;}#print-root{position:static!important;background:white!important;display:block!important;padding:0!important;overflow:visible!important;width:100%!important;}#offer-toolbar{display:none!important;}#offer-doc{box-shadow:none!important;border-radius:0!important;width:100%!important;max-width:100%!important;margin:0 auto!important;}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}.op{display:block!important;page-break-after:always!important;break-after:page!important;overflow:hidden!important;}.op:last-child{page-break-after:auto!important;break-after:auto!important;}}",
           }}
         />
         <div
