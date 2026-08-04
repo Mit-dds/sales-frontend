@@ -67,6 +67,23 @@ function F({
   );
 }
 
+const isValidCompletionDate = (s: string) => {
+  if (!s) return true;
+  const val = s.trim().toUpperCase();
+  const qPattern = /^Q[1-4]\s+\d{4}$/;
+  if (qPattern.test(val)) return true;
+  const mPattern = /^([A-Z]+)\s+(\d{4})$/;
+  const match = val.match(mPattern);
+  if (match) {
+    const months = [
+      "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC",
+      "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"
+    ];
+    return months.includes(match[1]);
+  }
+  return false;
+};
+
 export default function ProjectForm({
   project,
   onSave,
@@ -328,6 +345,10 @@ export default function ProjectForm({
   };
 
   const saveToStorage = async () => {
+    if (p.completionDate && !isValidCompletionDate(p.completionDate)) {
+      toast.error("Invalid Completion Date format. Expected e.g. Q4 2026 or Jan 2026");
+      throw new Error("Invalid Completion Date");
+    }
     const {
       name,
       location,
@@ -739,7 +760,7 @@ export default function ProjectForm({
               onChange={(e) => u("completionDate", e.target.value)}
               placeholder="e.g. Q4 2026"
             />
-            {p.completionDate && parseCompletionDate(p.completionDate) && (
+            {p.completionDate && isValidCompletionDate(p.completionDate) && parseCompletionDate(p.completionDate) && (
               <div className="text-[11px] text-green mt-1.5">
                 Handover:{" "}
                 {parseCompletionDate(p.completionDate)!.toLocaleDateString(
@@ -747,6 +768,11 @@ export default function ProjectForm({
                   { month: "long", year: "numeric" },
                 )}{" "}
                 &mdash; {getHandoverMonths(p.completionDate)} months from today
+              </div>
+            )}
+            {p.completionDate && !isValidCompletionDate(p.completionDate) && (
+              <div className="text-[11px] text-red mt-1.5">
+                Invalid format. Expected e.g. Q4 2026 or Jan 2026
               </div>
             )}
           </F>

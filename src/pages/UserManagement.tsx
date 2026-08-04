@@ -19,6 +19,7 @@ export default function UserManagement() {
   const [totalUsers, setTotalUsers] = useState(0);
 
   const [activeMenuUserId, setActiveMenuUserId] = useState<string | null>(null);
+  const [menuCoords, setMenuCoords] = useState<{ top: number; left: number } | null>(null);
   const [selectedProfileUser, setSelectedProfileUser] = useState<User | null>(
     null,
   );
@@ -274,9 +275,17 @@ export default function UserManagement() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        setActiveMenuUserId(
-                          activeMenuUserId === u.id ? null : u.id,
-                        );
+                        if (activeMenuUserId === u.id) {
+                          setActiveMenuUserId(null);
+                          setMenuCoords(null);
+                        } else {
+                          setActiveMenuUserId(u.id);
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          setMenuCoords({
+                            top: rect.bottom,
+                            left: rect.right - 176, // Align menu (w-44 = 176px) with right edge of button
+                          });
+                        }
                       }}
                       className="p-1 hover:bg-surface rounded-md transition-colors text-navy-light cursor-pointer"
                     >
@@ -299,9 +308,19 @@ export default function UserManagement() {
                       <>
                         <div
                           className="fixed inset-0 z-10"
-                          onClick={() => setActiveMenuUserId(null)}
+                          onClick={() => {
+                            setActiveMenuUserId(null);
+                            setMenuCoords(null);
+                          }}
                         ></div>
-                        <div className="fixed sm:absolute right-4 left-4 sm:left-auto mt-1 w-auto sm:w-44 bg-white border border-border rounded-lg shadow-lg py-1.5 z-20 animate-slide-down">
+                        <div
+                          className="fixed right-4 left-4 sm:left-auto mt-1 w-auto sm:w-44 bg-white border border-border rounded-lg shadow-lg py-1.5 z-20 animate-slide-down"
+                          style={{
+                            top: window.innerWidth >= 640 && menuCoords ? `${menuCoords.top}px` : undefined,
+                            left: window.innerWidth >= 640 && menuCoords ? `${menuCoords.left}px` : undefined,
+                            bottom: window.innerWidth < 640 ? "16px" : undefined,
+                          }}
+                        >
                           {(
                             [
                               "PENDING",
@@ -321,6 +340,7 @@ export default function UserManagement() {
                               onClick={() => {
                                 handleStatusChange(u.id, status);
                                 setActiveMenuUserId(null);
+                                setMenuCoords(null);
                               }}
                               className={`w-full text-left px-3 py-1.5 text-xs transition-colors hover:bg-[#F8FAFF] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer
                                 ${(u.status || "PENDING").toUpperCase() === status ? "text-gold font-semibold" : "text-navy"}
@@ -337,6 +357,7 @@ export default function UserManagement() {
                             onClick={() => {
                               handleViewProfile(u);
                               setActiveMenuUserId(null);
+                              setMenuCoords(null);
                             }}
                             className="w-full text-left px-3 py-1.5 text-xs text-blue hover:bg-[#F8FAFF] transition-colors font-semibold cursor-pointer"
                           >

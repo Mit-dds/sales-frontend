@@ -23,6 +23,13 @@ export default function AdminProjects() {
 
   useEffect(() => {
     fetchProjects({ page: 1, limit: 20 });
+    return () => {
+      localStorage.removeItem("reportage_active_editing_project");
+      localStorage.removeItem("reportage_active_editing_step");
+      localStorage.removeItem("reportage_active_editing_unittype_data");
+      localStorage.removeItem("reportage_active_editing_unittype_id");
+      localStorage.removeItem("reportage_active_editing_unittype_tab");
+    };
   }, [fetchProjects]);
 
   const handleSave = () => {

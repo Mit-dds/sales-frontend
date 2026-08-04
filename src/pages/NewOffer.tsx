@@ -2351,7 +2351,10 @@ export default function NewOffer() {
                     priceOverride && +priceOverride > 0
                       ? +priceOverride
                       : unit.price;
-                  const netP = effPrice3 * (1 - effDisc / 100);
+                  const resolvedUT =
+                    proj.unitTypes?.find((t) => t.id === unit.typeId) || unitType || null;
+                  const parkingAmt = calcParking(proj, resolvedUT as UnitType);
+                  const netP = effPrice3 * (1 - effDisc / 100) + parkingAmt;
                   const selected = plan?.id === p.id;
                   return (
                     <div
@@ -2444,7 +2447,10 @@ export default function NewOffer() {
                         priceOverride && +priceOverride > 0
                           ? +priceOverride
                           : unit.price;
-                      const netP = effPrice * (1 - effDisc / 100);
+                      const resolvedUT =
+                        proj.unitTypes?.find((t) => t.id === unit.typeId) || unitType || null;
+                      const parkingAmt = calcParking(proj, resolvedUT as UnitType);
+                      const netP = effPrice * (1 - effDisc / 100) + parkingAmt;
                       return (
                         <div
                           key={p.id}
@@ -2507,11 +2513,15 @@ export default function NewOffer() {
                       const bp = availPlans.find(
                         (p) => p.id === recoveryBaseId,
                       ) || { installmentPct: 1, discount: 0 };
+                      const resolvedUT =
+                        proj.unitTypes?.find((t) => t.id === unit.typeId) || unitType || null;
+                      const parkingAmt = calcParking(proj, resolvedUT as UnitType);
                       const bpNetPrice =
-                        (priceOverride && +priceOverride > 0
+                        ((priceOverride && +priceOverride > 0
                           ? +priceOverride
                           : unit.price) *
-                        (1 - ((bp.discount || 0) + (extraDiscount || 0)) / 100);
+                        (1 - ((bp.discount || 0) + (extraDiscount || 0)) / 100)) +
+                        parkingAmt;
                       return (
                         <div>
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -2585,15 +2595,22 @@ export default function NewOffer() {
                       const bp = availPlans.find(
                         (p) => p.id === recoveryBaseId,
                       ) || { installmentPct: 1, discount: 0 };
-                      const netP = unit.price * (1 - (bp.discount || 0) / 100);
+                      const effUnitPrice =
+                        priceOverride && +priceOverride > 0
+                          ? +priceOverride
+                          : unit.price;
+                      const totalDisc = (bp.discount || 0) + (extraDiscount || 0);
+                      const resolvedUT =
+                        proj.unitTypes?.find((t) => t.id === unit.typeId) || unitType || null;
+                      const parkingAmt = calcParking(proj, resolvedUT as UnitType);
+                      const netP = effUnitPrice * (1 - totalDisc / 100) + parkingAmt;
                       const orig = bp.installmentPct;
                       const red = +recoveryMonthlyPct;
                       if (red >= orig) return null;
                       const deferred = orig - red;
                       const regularAmt = Math.round((netP * red) / 100);
-                      const recoveryAmt = Math.round(
-                        (netP * (red + deferred * recoveryFreq)) / 100,
-                      );
+                      const deferredAmt = Math.round((netP * deferred) / 100);
+                      const recoveryAmt = regularAmt + deferredAmt * recoveryFreq;
                       const lockAmt = Math.round((netP * orig) / 100);
                       return (
                         <div
@@ -2786,13 +2803,25 @@ export default function NewOffer() {
               <div className="text-[10px] font-sans text-navy-light tracking-[1.5px] mb-3">
                 PAYMENT STRUCTURE PREVIEW
               </div>
-              <PaymentBar
-                plan={effPlan || plan}
-                netPrice={unit.price * (1 - activeDiscount / 100)}
-                primaryColor={pc}
-                secondaryColor={proj.secondaryColor}
-                handoverMonths={getHandoverMonths(proj.completionDate)}
-              />
+              {(() => {
+                const effPriceVal =
+                  priceOverride && +priceOverride > 0
+                    ? +priceOverride
+                    : unit.price;
+                const resolvedUT =
+                  proj.unitTypes?.find((t) => t.id === unit.typeId) || unitType || null;
+                const parkingAmt = calcParking(proj, resolvedUT as UnitType);
+                const netPriceVal = effPriceVal * (1 - activeDiscount / 100) + parkingAmt;
+                return (
+                  <PaymentBar
+                    plan={effPlan || plan}
+                    netPrice={netPriceVal}
+                    primaryColor={pc}
+                    secondaryColor={proj.secondaryColor}
+                    handoverMonths={getHandoverMonths(proj.completionDate)}
+                  />
+                );
+              })()}
             </div>
           )}
 
