@@ -312,6 +312,15 @@ export default function NewOffer() {
     offerMode,
   ]);
 
+  // Scroll to top of window on step changes
+  useEffect(() => {
+    const mainEl = document.querySelector("main");
+    if (mainEl) {
+      mainEl.scrollTo(0, 0);
+    }
+    window.scrollTo(0, 0);
+  }, [step]);
+
   // GET projects
   useEffect(() => {
     let mounted = true;
